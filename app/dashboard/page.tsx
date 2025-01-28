@@ -1,9 +1,7 @@
 import React from "react";
-import DashboardContent from "./dashboard-content";
-import { Heading, HStack } from "@chakra-ui/react";
-import Header from "../_components/Header";
+import { HStack } from "@chakra-ui/react";
 import { Button } from "@/components/ui/button";
-import { Plus, UserPlus } from "lucide-react";
+import { Plus } from "lucide-react";
 import Link from "next/link";
 
 interface Metadata {
@@ -17,7 +15,6 @@ export const metadata: Metadata = {
 export default function page() {
   return (
     <div className="">
-      <Header params="dashboard" />
       <HStack justifyContent={"space-evenly"} className="p-4">
         {/* <Heading className="text-center text-3xl font-bold">Dashboard</Heading> */}
         <Link href={"/create"}>

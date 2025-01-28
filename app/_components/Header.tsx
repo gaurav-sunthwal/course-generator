@@ -28,17 +28,17 @@ export default function Header({ params }: { params: string }) {
           justifyContent="center"
           className="flex-wrap mt-2 md:mt-0"
         >
-          <Link href={"/dashboard"}>
-            {params === "dashboard" ? (
-              params === "dashboard" ? (
-                <UserButton />
-              ) : (
-                ""
-              )
+          {params === "dashboard" ? (
+            params === "dashboard" ? (
+              <UserButton />
             ) : (
+              ""
+            )
+          ) : (
+            <Link href={"/dashboard"} className="items-center">
               <Button>{user ? "Dashboard" : "Get Started"}</Button>
-            )}
-          </Link>
+            </Link>
+          )}
           <ColorModeButton />
         </HStack>
       </HStack>
