@@ -22,6 +22,7 @@ import { Label } from "@/components/ui/label";
 import { Loader2, ImageIcon, Plus } from "lucide-react";
 import Image from "next/image";
 import Header from "../_components/Header";
+import { chatSession } from "@/utlis/gamini";
 
 const formSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -41,8 +42,9 @@ export default function CourseCreationForm() {
   >({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      title: "",
-      description: "",
+      title: "Master Python Programming from Zero to Hero",
+      description:
+        "This course is designed to take you from complete beginner to advanced Python programmer. You'll gain hands-on experience with coding challenges, projects, and real-world applications of Python.",
       category: "",
       image: null,
       aiAssist: true,
@@ -75,19 +77,26 @@ export default function CourseCreationForm() {
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
     console.log("Form Data:", data.title);
     // alert("Course created successfully!");
-    reset();
+
     setPreview(null);
     setTags([]);
 
-    // const props = `
-    //  Generate A course titorial with the following details:
-    //   Title: ${data.title}
-    //   Description: ${data.description}
-    //   Category: ${data.category}
-    //   no of chapters are 5 
-    //   language: English
-    //   in JSON format
-    // `;
+    const props = `
+     Generate A course titorial with the following details:
+      Title: ${data.title}
+      Description: ${data.description}
+      Category: ${data.category}
+      language: English
+      in JSON format
+    `;
+
+    const result = await chatSession.sendMessage(props);
+    const mockJSONResp = result.response
+      .text()
+      .replace("```json", "")
+      .replace("```", "");
+    console.log(mockJSONResp);
+    reset();
   };
 
   return (

@@ -2,12 +2,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import {
-  BookOpen,
   ReplaceIcon as Customize,
   Zap,
   Clock,
-  Award,
-  Sparkles,
 } from "lucide-react";
 import Link from "next/link";
 import Header from "./_components/Header";
