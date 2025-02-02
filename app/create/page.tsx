@@ -8,6 +8,7 @@ import { useDropzone } from "react-dropzone";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { v4 as uuidv4 } from "uuid";
 import {
   Select,
   SelectContent,
@@ -21,9 +22,12 @@ import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { Loader2, ImageIcon, Plus } from "lucide-react";
 import Image from "next/image";
-import Header from "../_components/Header";
 import { chatSession } from "@/utlis/gamini";
-
+import { db } from "@/utlis/db";
+import { coursesTable } from "@/utlis/schema";
+import moment from "moment";
+import { useUser } from "@clerk/nextjs";
+import { useRouter } from "next/navigation";
 const formSchema = z.object({
   title: z.string().min(1, "Title is required"),
   description: z.string().min(1, "Description is required"),
@@ -37,6 +41,8 @@ export default function CourseCreationForm() {
   const [preview, setPreview] = useState<string | null>(null);
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState("");
+  const { user } = useUser();
+  const router = useRouter();
   const { register, handleSubmit, setValue, formState, reset } = useForm<
     z.infer<typeof formSchema>
   >({
@@ -82,27 +88,61 @@ export default function CourseCreationForm() {
     setTags([]);
 
     const props = `
-     Generate A course titorial with the following details:
-      Title: ${data.title}
-      Description: ${data.description}
-      Category: ${data.category}
-      language: English
-      in JSON format
-    `;
+    Generate a highly detailed and comprehensive course tutorial with the following requirements:
+    
+    **Title:** "${data.title}"  
+    **Description:** "${data.description}"  
+    **Category:** "${data.category}"  
+    **Tags:** "${data.tags.join(", ")}"  
+    **Language:** "English"  
+  
+    
+    give 10 chapters with there basic information for my outline page so just want title and description 
+
+    **Output Format:** Provide the course tutorial in JSON format.
+  
+    Ensure that this is a top-quality, research-driven, and impactful course that can serve both beginners and experts.
+
+    dont give any **Note:**  eveything should be in JSON format
+  `;
 
     const result = await chatSession.sendMessage(props);
     const mockJSONResp = result.response
       .text()
       .replace("```json", "")
       .replace("```", "");
+    console.log(props);
     console.log(mockJSONResp);
-    reset();
+    console.log(JSON.parse(mockJSONResp));
+    if (mockJSONResp) {
+      const resp = await db
+        .insert(coursesTable)
+        .values({
+          courseId: uuidv4() || "",
+          title: data.title,
+          description: data.description,
+          category: data.category,
+          chapters: mockJSONResp,
+          tags: data.tags.join(", "),
+          createdBy:
+            user?.emailAddresses[0].emailAddress || "unknown@example.com",
+          createdAt: moment().format("DD-MM-yyyy"),
+          updatedAt: moment().format("DD-MM-yyyy"),
+        })
+        .returning({ courseId: coursesTable.courseId });
+
+      if (resp) {
+        router.push(`create/${resp[0]?.courseId}/Outline`);
+      }
+    } else {
+      console.log("error to get respo");
+      reset();
+    }
   };
 
   return (
     <div className="">
-      <Header params="dashboard" />
-      <div className="max-w-4xl mx-auto p-6 space-y-8">
+      <div className=" mx-auto p-6 space-y-8">
         <div className="space-y-2">
           <h1 className="text-3xl font-bold">Create New Course</h1>
           <p className="text-muted-foreground">
@@ -138,7 +178,7 @@ export default function CourseCreationForm() {
                   id="description"
                   placeholder="Describe what students will learn in this course..."
                   {...register("description")}
-                  rows={5}
+                  rows={7}
                 />
                 {formState.errors.description && (
                   <p className="text-sm text-red-500">
@@ -160,36 +200,6 @@ export default function CourseCreationForm() {
                     <SelectItem value="business">Business</SelectItem>
                   </SelectContent>
                 </Select>
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              <div>
-                <Label>Course Image</Label>
-                <Card
-                  {...getRootProps()}
-                  className="cursor-pointer hover:border-primary"
-                >
-                  <CardContent className="flex flex-col items-center justify-center p-8">
-                    {preview ? (
-                      <Image
-                        width={100}
-                        height={48}
-                        src={preview}
-                        alt="Preview"
-                        className="w-full h-48 object-cover rounded-lg"
-                      />
-                    ) : (
-                      <>
-                        <ImageIcon className="h-12 w-12 text-muted-foreground mb-4" />
-                        <p className="text-muted-foreground text-center">
-                          Drag & drop or click to upload
-                        </p>
-                      </>
-                    )}
-                  </CardContent>
-                </Card>
-                <input {...getInputProps()} className="hidden" />
               </div>
 
               <div>
@@ -232,6 +242,36 @@ export default function CourseCreationForm() {
                     </Badge>
                   ))}
                 </div>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <Label>Course Image</Label>
+                <Card
+                  {...getRootProps()}
+                  className="cursor-pointer hover:border-primary mt-3"
+                >
+                  <CardContent className="flex flex-col items-center justify-center p-5">
+                    {preview ? (
+                      <Image
+                        width={500}
+                        height={500}
+                        src={preview}
+                        alt="Preview"
+                        className="lg:h-[400px] lg:w-[600px] object-cover rounded-lg"
+                      />
+                    ) : (
+                      <>
+                        <ImageIcon className="lg:h-[400px] lg:w-[600px] text-muted-foreground mb-4" />
+                        <p className="text-muted-foreground text-center">
+                          Drag & drop or click to upload
+                        </p>
+                      </>
+                    )}
+                  </CardContent>
+                </Card>
+                <input {...getInputProps()} className="hidden" />
               </div>
             </div>
           </div>
