@@ -13,7 +13,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import Image from "next/image";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { eq } from "drizzle-orm";
 import { db } from "@/utlis/db";
 import { coursesTable } from "@/utlis/schema";
@@ -123,6 +123,10 @@ export default function OutlinePage() {
   const simulateAISuggestion = () => {
     alert("AI Suggestion: Consider adding more conflict in middle chapters.");
   };
+  const router =  useRouter()
+  const handalSubmit = () =>{
+    router.push(`/course/${courseId}`)
+  }
 
   return (
     <div className="flex flex-col lg:flex-row min-h-screen bg-background">
@@ -218,7 +222,7 @@ export default function OutlinePage() {
             className="w-full h-auto rounded-lg shadow-lg"
           />
         </div>
-        <Button className="w-full text-lg py-6 bg-blue-600 hover:bg-blue-700 text-white font-bold">
+        <Button onClick={handalSubmit} className="w-full text-lg py-6 bg-blue-600 hover:bg-blue-700 text-white font-bold">
           Continue!!
         </Button>
       </div>
