@@ -25,9 +25,8 @@ export const courseDetails = pgTable("courseDetails", {
   content: text("chapters").notNull(),
   codeExamples: text("codeExamples").notNull(),
   importantNotes: text("importantNotes").notNull(),
-  createdBy: varchar("createdBy").notNull(),
-  createdAt: varchar("createdAt", { length: 255 }).notNull(),
-  updatedAt: varchar("updatedAt", { length: 255 }).notNull(),
+  chapterId: varchar("chapterId").notNull(),
+  courseId: varchar("courseId").notNull(),
 });
 
 // Define the Users table structure

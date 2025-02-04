@@ -99,7 +99,7 @@ export default function CourseCreationForm() {
     
     give 10 chapters with there basic information for my outline page so just want title and description 
 
-    **Output Format:** Provide the course tutorial in JSON format.
+    **Output Format:** Provide the course tutorial in JSON format ,  "courseTitle" , "description".
   
     Ensure that this is a top-quality, research-driven, and impactful course that can serve both beginners and experts.
 

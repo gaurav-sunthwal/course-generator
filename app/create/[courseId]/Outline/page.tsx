@@ -16,12 +16,13 @@ import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
 import { eq } from "drizzle-orm";
 import { db } from "@/utlis/db";
-import { coursesTable } from "@/utlis/schema";
+import { courseDetails, coursesTable } from "@/utlis/schema";
 import { chatSession } from "@/utlis/gamini";
+import { v4 as uuidv4 } from "uuid";
 
 interface Chapter {
   id: string;
-  chapterTitle: string;
+  title: string;
   description: string;
 }
 
@@ -135,13 +136,13 @@ For each chapter, provide the following details:
 Title: The name of the chapter.
 Description: A brief summary of what the chapter covers.
 Estimated Reading Time: The approximate time required to read and understand the content.
-Content :  each and every of this chapter (min 300 words per chapter)
+Content :  each and every of this chapter (only one word )
 Code Examples (if applicable): Any source code related to the chapter, properly formatted.
 Important Notes: Key takeaways, warnings, or additional insights.
 
   ${chapters.map((chapters, index) => {
     return `{
-      "chapterTitle ${index}": "${chapters.chapterTitle}",
+      "title ${index}": "${chapters.title}",
       "description of chapter ${index}": "${chapters.description}"
     }`;
   })}
@@ -160,9 +161,38 @@ Important Notes: Key takeaways, warnings, or additional insights.
     console.log(props);
     console.log(mockJSONResp);
     console.log(JSON.parse(mockJSONResp));
-    router.push(`/course/${courseId}`)
-  };
 
+    try {
+      const parsedData =
+        typeof mockJSONResp === "string"
+          ? JSON.parse(mockJSONResp)
+          : mockJSONResp;
+
+      if (parsedData?.chapters?.length > 0) {
+        // Use map to ensure unique chapter insertion
+        for (const chapter of parsedData.chapters) {
+          const chapterId = uuidv4();
+          await db.insert(courseDetails).values({
+            title: chapter.title,
+            description: chapter.description,
+            estimatedReadingTime: chapter.estimatedReadingTime,
+            content: chapter.content,
+            codeExamples: JSON.stringify(chapter.codeExamples || []),
+            importantNotes: JSON.stringify(chapter.importantNotes || []),
+            chapterId: chapterId,
+            courseId: courseId!,
+          });
+
+          console.log(`Inserted chapter with ID: ${chapterId}`);
+        }
+        router.push(`/course/${courseId}`);
+      } else {
+        console.error("Error: No chapters found in response data");
+      }
+    } catch (error) {
+      console.error("Database insertion error:", error);
+    }
+  };
   return (
     <div className="flex flex-col lg:flex-row min-h-screen bg-background">
       <div className="lg:w-2/3 p-6 overflow-y-auto">
@@ -209,7 +239,9 @@ Important Notes: Key takeaways, warnings, or additional insights.
           <Accordion type="single" collapsible className="w-full">
             {chapters.map((chapter, index) => (
               <AccordionItem key={index} value={`chapter-${index}`}>
-                <AccordionTrigger>{chapter.chapterTitle}</AccordionTrigger>
+                <AccordionTrigger>
+                  <p>{chapter.title}</p>
+                </AccordionTrigger>
                 <AccordionContent>
                   <Textarea
                     value={chapter.description}
