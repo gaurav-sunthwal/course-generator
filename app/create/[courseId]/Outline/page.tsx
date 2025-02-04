@@ -4,8 +4,7 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Badge } from "@/components/ui/badge";
-import { PlusCircle, Edit, Wand2 } from "lucide-react";
+import { Edit, Wand2, Loader2 } from "lucide-react";
 import {
   Accordion,
   AccordionContent,
@@ -19,6 +18,7 @@ import { db } from "@/utlis/db";
 import { courseDetails, coursesTable } from "@/utlis/schema";
 import { chatSession } from "@/utlis/gamini";
 import { v4 as uuidv4 } from "uuid";
+import toast from "react-hot-toast";
 
 interface Chapter {
   id: string;
@@ -34,9 +34,7 @@ export default function OutlinePage() {
   const [description, setDescription] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const [chapters, setChapters] = useState<Chapter[]>([]);
-  const [tags, setTags] = useState<string[]>([]);
-  const [newTag, setNewTag] = useState("");
-
+  const [isSubmitting, setIsSubmitting] = useState(false);
   useEffect(() => {
     const fetchCourseData = async () => {
       try {
@@ -58,12 +56,6 @@ export default function OutlinePage() {
               ? JSON.parse(course.chapters)?.chapters || []
               : course.chapters || [];
           setChapters(Array.isArray(parsedChapters) ? parsedChapters : []);
-
-          const parsedTags =
-            typeof course.tags === "string"
-              ? JSON.parse(course.tags)
-              : course.tags || [];
-          setTags(Array.isArray(parsedTags) ? parsedTags : []);
         }
       } catch (error) {
         console.error("Error fetching course data:", error);
@@ -106,58 +98,45 @@ export default function OutlinePage() {
     await updateChapters(updatedChapters);
   };
 
-  const addTag = async () => {
-    if (newTag && !tags.includes(newTag)) {
-      const updatedTags = [...tags, newTag];
-      setTags(updatedTags);
-      setNewTag("");
-      try {
-        await db
-          .update(coursesTable)
-          .set({ tags: JSON.stringify(updatedTags) })
-          .where(eq(coursesTable.courseId, courseId!));
-      } catch (error) {
-        console.error("Error adding tag:", error);
-      }
-    }
-  };
-
   const simulateAISuggestion = () => {
     alert("AI Suggestion: Consider adding more conflict in middle chapters.");
   };
   const router = useRouter();
   const handalSubmit = async () => {
+    setIsSubmitting(true);
     const props = `
+
+    Generate a structured JSON output that includes comprehensive details for each chapter of a course, tutorial, or documentation.
     
-  Generate a structured JSON output that includes comprehensive details for each chapter of a course, tutorial, or documentation.
-
-For each chapter, provide the following details:
-
-Title: The name of the chapter.
-Description: A brief summary of what the chapter covers.
-Estimated Reading Time: The approximate time required to read and understand the content.
-Content :  each and every of this chapter (only one word )
-Code Examples (if applicable): Any source code related to the chapter, properly formatted.
-Important Notes: Key takeaways, warnings, or additional insights.
-
-  ${chapters.map((chapters, index) => {
-    return `{
-      "title ${index}": "${chapters.title}",
-      "description of chapter ${index}": "${chapters.description}"
-    }`;
-  })}
-
-
-  **output** : make sure that output must be in JSON format
-  `;
+    For each chapter, provide the following details:
+    
+    1. **title:** The name of the chapter.  
+    2. **description:** A brief summary of what the chapter covers.  
+    3. **estimatedReadingTime:** The approximate time required to read and understand the content.  4
+    4. **content** :  each and every of this chapter (min 10 words per chapter)
+    5. **codeExamples** (if applicable): Any source code related to the chapter, properly formatted.
+    6. **importantNotes:** Key takeaways, warnings, or additional insights.  
+    
+    Below is the structured JSON based on the provided chapters:  
+    
+    ${chapters.map((chapter) => {
+      return `{
+        "title": "${chapter.title}",
+        "description": "${chapter.description}",
+      }`;
+    })}
+    
+    **Output:** Ensure that the output is in valid **JSON** format.
+    `;
 
     console.log(props);
-
+    toast.dismiss("Working...");
     const result = await chatSession.sendMessage(props);
     const mockJSONResp = result.response
       .text()
       .replace("```json", "")
       .replace("```", "");
+
     console.log(props);
     console.log(mockJSONResp);
     console.log(JSON.parse(mockJSONResp));
@@ -185,12 +164,18 @@ Important Notes: Key takeaways, warnings, or additional insights.
 
           console.log(`Inserted chapter with ID: ${chapterId}`);
         }
+        toast.success("Course added successfully");
         router.push(`/course/${courseId}`);
+        setIsSubmitting(false);
       } else {
         console.error("Error: No chapters found in response data");
+        setIsSubmitting(false);
+        toast.error("Error: No chapters found");
       }
     } catch (error) {
       console.error("Database insertion error:", error);
+      setIsSubmitting(false);
+      toast.error("Database insertion error");
     }
   };
   return (
@@ -254,29 +239,6 @@ Important Notes: Key takeaways, warnings, or additional insights.
             ))}
           </Accordion>
         </div>
-
-        <div className="bg-card rounded-lg p-6 shadow-md">
-          <h2 className="text-2xl font-semibold mb-4">Tags</h2>
-          <div className="flex flex-wrap gap-2 mb-4">
-            {tags.map((tag, index) => (
-              <Badge key={index} variant="secondary" className="text-sm">
-                {tag}
-              </Badge>
-            ))}
-          </div>
-          <div className="flex gap-2">
-            <Input
-              value={newTag}
-              onChange={(e) => setNewTag(e.target.value)}
-              placeholder="Add a new tag"
-              className="flex-grow"
-              onKeyDown={(e) => e.key === "Enter" && addTag()}
-            />
-            <Button onClick={addTag}>
-              <PlusCircle className="mr-2 h-4 w-4" /> Add Tag
-            </Button>
-          </div>
-        </div>
       </div>
 
       <div className="lg:w-1/3 p-6 ">
@@ -291,9 +253,14 @@ Important Notes: Key takeaways, warnings, or additional insights.
         </div>
         <Button
           onClick={handalSubmit}
+          disabled={isSubmitting ? true : false}
           className="w-full text-lg py-6 bg-blue-600 hover:bg-blue-700 text-white font-bold"
         >
-          Continue!!
+          {isSubmitting ? (
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          ) : (
+            "Continue!!"
+          )}
         </Button>
       </div>
     </div>

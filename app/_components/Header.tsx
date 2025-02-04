@@ -16,7 +16,7 @@ export default function Header({ params }: { params: string }) {
         className="flex flex-wrap items-center"
       >
         {/* Logo Section */}
-        <Link href={"/"} className="sm:text-2xl lg:text-3xl">
+        <Link href={user ? "/dashboard" : ""} className="sm:text-2xl lg:text-3xl">
           <h1 className="font-bold text-nowrap  text-gray-800 dark:text-white">
             CourseCrafter AI
           </h1>

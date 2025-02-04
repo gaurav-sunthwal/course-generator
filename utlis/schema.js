@@ -8,7 +8,6 @@ export const coursesTable = pgTable("courses", {
   description: varchar("description", { length: 255 }).notNull(),
   category: varchar("category", { length: 255 }).notNull(),
   chapters: text("chapters").notNull(),
-  tags: text("tags").notNull(),
   courseId: varchar("courseId").notNull(),
   createdBy: varchar("createdBy").notNull(),
   createdAt: varchar("createdAt", { length: 255 }).notNull(),
@@ -17,12 +16,12 @@ export const coursesTable = pgTable("courses", {
 
 export const courseDetails = pgTable("courseDetails", {
   id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
-  title: varchar("title", { length: 255 }).notNull(),
-  description: varchar("description", { length: 255 }).notNull(),
+  title: text("title").notNull(),
+  description: text("description").notNull(),
   estimatedReadingTime: varchar("estimatedReadingTime", {
     length: 255,
   }).notNull(),
-  content: text("chapters").notNull(),
+  content: text("content").notNull(),
   codeExamples: text("codeExamples").notNull(),
   importantNotes: text("importantNotes").notNull(),
   chapterId: varchar("chapterId").notNull(),

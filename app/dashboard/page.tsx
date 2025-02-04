@@ -131,7 +131,7 @@ export default function Page() {
                     <Delete className="mr-2 h-4 w-4" /> Delete
                   </Button>
                   <Link
-                    href={`/create/${course.courseId}/Outline`}
+                    href={`/course/${course.courseId}/`}
                     className="flex-1"
                   >
                     <Button variant="outline" className="w-full">

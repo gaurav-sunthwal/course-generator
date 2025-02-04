@@ -17,10 +17,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
-import { Switch } from "@/components/ui/switch";
-import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
-import { Loader2, ImageIcon, Plus } from "lucide-react";
+import { Loader2, ImageIcon } from "lucide-react";
 import Image from "next/image";
 import { chatSession } from "@/utlis/gamini";
 import { db } from "@/utlis/db";
@@ -34,13 +32,10 @@ const formSchema = z.object({
   category: z.string().min(1, "Category is required"),
   image: z.instanceof(File).nullable(),
   aiAssist: z.boolean(),
-  tags: z.array(z.string()),
 });
 
 export default function CourseCreationForm() {
   const [preview, setPreview] = useState<string | null>(null);
-  const [tags, setTags] = useState<string[]>([]);
-  const [tagInput, setTagInput] = useState("");
   const { user } = useUser();
   const router = useRouter();
   const { register, handleSubmit, setValue, formState, reset } = useForm<
@@ -54,7 +49,6 @@ export default function CourseCreationForm() {
       category: "",
       image: null,
       aiAssist: true,
-      tags: [],
     },
   });
 
@@ -66,26 +60,14 @@ export default function CourseCreationForm() {
     },
   });
 
-  const addTag = () => {
-    if (tagInput.trim() && !tags.includes(tagInput.trim())) {
-      setTags((prev) => [...prev, tagInput.trim()]);
-      setTagInput("");
-      setValue("tags", [...tags, tagInput.trim()]);
-    }
-  };
+  
 
-  const removeTag = (tag: string) => {
-    const updatedTags = tags.filter((t) => t !== tag);
-    setTags(updatedTags);
-    setValue("tags", updatedTags);
-  };
-
+  
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
     console.log("Form Data:", data.title);
     // alert("Course created successfully!");
 
     setPreview(null);
-    setTags([]);
 
     const props = `
     Generate a highly detailed and comprehensive course tutorial with the following requirements:
@@ -93,7 +75,6 @@ export default function CourseCreationForm() {
     **Title:** "${data.title}"  
     **Description:** "${data.description}"  
     **Category:** "${data.category}"  
-    **Tags:** "${data.tags.join(", ")}"  
     **Language:** "English"  
   
     
@@ -123,7 +104,6 @@ export default function CourseCreationForm() {
           description: data.description,
           category: data.category,
           chapters: mockJSONResp,
-          tags: data.tags.join(", "),
           createdBy:
             user?.emailAddresses[0].emailAddress || "unknown@example.com",
           createdAt: moment().format("DD-MM-yyyy"),
@@ -202,7 +182,7 @@ export default function CourseCreationForm() {
                 </Select>
               </div>
 
-              <div>
+              {/* <div>
                 <Label className="block mb-2">AI Assistance</Label>
                 <div className="flex items-center gap-4 p-4 border rounded-lg">
                   <Switch
@@ -214,9 +194,9 @@ export default function CourseCreationForm() {
                     Enable AI suggestions
                   </Label>
                 </div>
-              </div>
+              </div> */}
 
-              <div>
+              {/* <div>
                 <Label className="block mb-2">Course Tags</Label>
                 <div className="flex gap-2 items-center">
                   <Input
@@ -242,7 +222,7 @@ export default function CourseCreationForm() {
                     </Badge>
                   ))}
                 </div>
-              </div>
+              </div> */}
             </div>
 
             <div className="space-y-4">
@@ -256,14 +236,14 @@ export default function CourseCreationForm() {
                     {preview ? (
                       <Image
                         width={500}
-                        height={500}
+                        height={200}
                         src={preview}
                         alt="Preview"
                         className="lg:h-[400px] lg:w-[600px] object-cover rounded-lg"
                       />
                     ) : (
                       <>
-                        <ImageIcon className="lg:h-[400px] lg:w-[600px] text-muted-foreground mb-4" />
+                        <ImageIcon className="lg:h-[240px] lg:w-[600px] text-muted-foreground mb-4" />
                         <p className="text-muted-foreground text-center">
                           Drag & drop or click to upload
                         </p>
