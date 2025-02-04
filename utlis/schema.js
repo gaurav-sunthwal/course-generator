@@ -15,6 +15,21 @@ export const coursesTable = pgTable("courses", {
   updatedAt: varchar("updatedAt", { length: 255 }).notNull(),
 });
 
+export const courseDetails = pgTable("courseDetails", {
+  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+  title: varchar("title", { length: 255 }).notNull(),
+  description: varchar("description", { length: 255 }).notNull(),
+  estimatedReadingTime: varchar("estimatedReadingTime", {
+    length: 255,
+  }).notNull(),
+  content: text("chapters").notNull(),
+  codeExamples: text("codeExamples").notNull(),
+  importantNotes: text("importantNotes").notNull(),
+  createdBy: varchar("createdBy").notNull(),
+  createdAt: varchar("createdAt", { length: 255 }).notNull(),
+  updatedAt: varchar("updatedAt", { length: 255 }).notNull(),
+});
+
 // Define the Users table structure
 // export const usersTable = pgTable("users", {
 //   id: integer("id").primaryKey().generatedAlwaysAsIdentity(),

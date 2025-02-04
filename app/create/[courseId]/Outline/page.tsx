@@ -17,6 +17,7 @@ import { useParams, useRouter } from "next/navigation";
 import { eq } from "drizzle-orm";
 import { db } from "@/utlis/db";
 import { coursesTable } from "@/utlis/schema";
+import { chatSession } from "@/utlis/gamini";
 
 interface Chapter {
   id: string;
@@ -123,10 +124,44 @@ export default function OutlinePage() {
   const simulateAISuggestion = () => {
     alert("AI Suggestion: Consider adding more conflict in middle chapters.");
   };
-  const router =  useRouter()
-  const handalSubmit = () =>{
+  const router = useRouter();
+  const handalSubmit = async () => {
+    const props = `
+    
+  Generate a structured JSON output that includes comprehensive details for each chapter of a course, tutorial, or documentation.
+
+For each chapter, provide the following details:
+
+Title: The name of the chapter.
+Description: A brief summary of what the chapter covers.
+Estimated Reading Time: The approximate time required to read and understand the content.
+Content :  each and every of this chapter (min 300 words per chapter)
+Code Examples (if applicable): Any source code related to the chapter, properly formatted.
+Important Notes: Key takeaways, warnings, or additional insights.
+
+  ${chapters.map((chapters, index) => {
+    return `{
+      "chapterTitle ${index}": "${chapters.chapterTitle}",
+      "description of chapter ${index}": "${chapters.description}"
+    }`;
+  })}
+
+
+  **output** : make sure that output must be in JSON format
+  `;
+
+    console.log(props);
+
+    const result = await chatSession.sendMessage(props);
+    const mockJSONResp = result.response
+      .text()
+      .replace("```json", "")
+      .replace("```", "");
+    console.log(props);
+    console.log(mockJSONResp);
+    console.log(JSON.parse(mockJSONResp));
     router.push(`/course/${courseId}`)
-  }
+  };
 
   return (
     <div className="flex flex-col lg:flex-row min-h-screen bg-background">
@@ -222,7 +257,10 @@ export default function OutlinePage() {
             className="w-full h-auto rounded-lg shadow-lg"
           />
         </div>
-        <Button onClick={handalSubmit} className="w-full text-lg py-6 bg-blue-600 hover:bg-blue-700 text-white font-bold">
+        <Button
+          onClick={handalSubmit}
+          className="w-full text-lg py-6 bg-blue-600 hover:bg-blue-700 text-white font-bold"
+        >
           Continue!!
         </Button>
       </div>
