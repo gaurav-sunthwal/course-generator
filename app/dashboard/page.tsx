@@ -7,7 +7,7 @@ import { Delete, Edit, ExternalLink, Plus } from "lucide-react";
 import Link from "next/link";
 import { useUser } from "@clerk/nextjs";
 import { db } from "@/utlis/db";
-import { coursesTable } from "@/utlis/schema";
+import { courseDetails, coursesTable } from "@/utlis/schema";
 import { eq } from "drizzle-orm";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -66,6 +66,7 @@ export default function Page() {
     if (confirm("Are you sure you want to delete this course?")) {
       try {
         await db.delete(coursesTable).where(eq(coursesTable.courseId, courseId));
+        await db.delete(courseDetails).where(eq(courseDetails.chapterId, courseId));
         await fetchCourses();
       } catch (error) {
         console.error("Error deleting course:", error);
