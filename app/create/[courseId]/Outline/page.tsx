@@ -114,7 +114,7 @@ export default function OutlinePage() {
     2. **description:** A brief summary of what the chapter covers.  
     3. **estimatedReadingTime:** The approximate time required to read and understand the content.  4
     4. **content** :  each and every of this chapter (min 10 words per chapter)
-    5. **codeExamples** (if applicable): Any source code related to the chapter, properly formatted.
+    5. **codeExamples** (if applicable): Any source code related to the chapter, properly formatted and with language name in JSON form {language : ,  code :  }.
     6. **importantNotes:** Key takeaways, warnings, or additional insights.  
     
     Below is the structured JSON based on the provided chapters:  

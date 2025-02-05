@@ -9,6 +9,7 @@ import { db } from "@/utlis/db";
 import { courseDetails } from "@/utlis/schema";
 
 // Define proper TypeScript interface for code examples
+
 interface CodeExample {
   language: string;
   code: string;
@@ -20,7 +21,7 @@ interface ChapterData {
   description: string;
   estimatedReadingTime: string;
   content: string;
-  codeExamples: CodeExample[]; 
+  codeExamples: CodeExample[];
   importantNotes: string;
 }
 
@@ -35,7 +36,7 @@ export default function ChapterPage() {
         .from(courseDetails)
         .where(eq(courseDetails.chapterId, chapterId as string))
         .limit(1);
-        
+
       if (data.length > 0) {
         setChapterData({
           ...data[0],
@@ -89,7 +90,9 @@ export default function ChapterPage() {
         <p className="text-xl text-gray-600 mb-4">{chapterData.description}</p>
         <div className="flex items-center text-sm text-gray-500">
           <Clock className="mr-2 h-4 w-4" />
-          <span>Estimated reading time: {chapterData.estimatedReadingTime}</span>
+          <span>
+            Estimated reading time: {chapterData.estimatedReadingTime}
+          </span>
         </div>
       </motion.header>
 
@@ -107,34 +110,57 @@ export default function ChapterPage() {
         </motion.section>
 
         {/* Code Examples Section - Fixed Structure */}
-        {chapterData.codeExamples.length > 0 && (
+        {/* Code Examples Section with Loading States */}
+        {chapterData.codeExamples?.length > 0 ? (
           <motion.section variants={itemVariants}>
             <h2 className="text-2xl font-semibold mb-4 flex items-center">
               <BookOpen className="mr-2 h-6 w-6" />
               Code Examples
             </h2>
+
             {chapterData.codeExamples.map((example, index) => (
-              // Changed from <p> to <div> to avoid invalid HTML nesting
-              <div 
-                key={index} 
+              <div
+                key={index}
                 className="mb-4 p-4 bg-gray-100 rounded-lg text-black"
               >
-                {/* Use pre+code for proper code formatting */}
-                <pre className="whitespace-pre-wrap">
-                  {/* Add language class for syntax highlighting (requires Prism.js or similar) */}
-                  <code className={`language-${example.language}`}>
-                    {example.code}
-                  </code>
-                </pre>
-                
-                {/* Show programming language if specified */}
-                {example.language && (
-                  <div className="mt-2 text-sm text-gray-500">
-                    Language: {example.language}
+                {/* Show loading skeleton while code is being parsed */}
+                {!example.code ? (
+                  <div className="animate-pulse">
+                    <div className="h-4 bg-gray-300 rounded w-3/4 mb-2"></div>
+                    <div className="h-4 bg-gray-300 rounded w-1/2"></div>
                   </div>
+                ) : (
+                  <>
+                    {/* Code Block with Fallback */}
+                    <pre className="whitespace-pre-wrap">
+                      <code
+                        className={`language-${
+                          example.language || "plaintext"
+                        }`}
+                      >
+                        {example.code || "// Code example not available"}
+                      </code>
+                    </pre>
+
+                    {/* Language Indicator with Fallback */}
+                    <div className="mt-2 text-sm text-gray-500">
+                      Language: {example.language || "Not specified"}
+                    </div>
+                  </>
                 )}
               </div>
             ))}
+          </motion.section>
+        ) : (
+          // Fallback if no code examples exist
+          <motion.section variants={itemVariants}>
+            <h2 className="text-2xl font-semibold mb-4 flex items-center">
+              <BookOpen className="mr-2 h-6 w-6" />
+              Code Examples
+            </h2>
+            <div className="p-4 bg-gray-100 rounded-lg text-gray-500">
+              No code examples available for this chapter
+            </div>
           </motion.section>
         )}
 
