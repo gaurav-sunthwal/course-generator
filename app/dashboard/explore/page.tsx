@@ -1,7 +1,7 @@
 "use client";
 
-import { db } from "@/utlis/db";
-import { coursesTable } from "@/utlis/schema";
+import { db } from "@/api/utlis/db";
+import { coursesTable } from "@/api/utlis/schema";
 import React, { useCallback, useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";

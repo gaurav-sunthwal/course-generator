@@ -1,6 +1,6 @@
 "use client";
-import { db } from "@/utlis/db";
-import { courseDetails } from "@/utlis/schema";
+import { db } from "@/api/utlis/db";
+import { courseDetails } from "@/api/utlis/schema";
 import { eq } from "drizzle-orm";
 import { useParams, useRouter } from "next/navigation";
 import React, { useEffect } from "react";

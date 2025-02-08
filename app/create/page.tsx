@@ -20,9 +20,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Loader2, ImageIcon } from "lucide-react";
 import Image from "next/image";
-import { chatSession } from "@/utlis/gamini";
-import { db } from "@/utlis/db";
-import { coursesTable } from "@/utlis/schema";
+import { chatSession } from "@/api/utlis/gamini";
+import { db } from "@/api/utlis/db";
+import { coursesTable } from "@/api/utlis/schema";
 import moment from "moment";
 import { useUser } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
@@ -60,9 +60,6 @@ export default function CourseCreationForm() {
     },
   });
 
-  
-
-  
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
     console.log("Form Data:", data.title);
     // alert("Course created successfully!");

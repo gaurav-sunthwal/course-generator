@@ -10,8 +10,8 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { useEffect, useState } from "react";
-import { courseDetails } from "@/utlis/schema";
-import { db } from "@/utlis/db";
+import { courseDetails } from "@/api/utlis/schema";
+import { db } from "@/api/utlis/db";
 import { eq } from "drizzle-orm";
 import { useParams } from "next/navigation";
 import Link from "next/link";

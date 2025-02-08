@@ -5,8 +5,8 @@ import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Clock, BookOpen, Lightbulb } from "lucide-react";
 import { motion } from "framer-motion";
-import { db } from "@/utlis/db";
-import { courseDetails } from "@/utlis/schema";
+import { db } from "@/api/utlis/db";
+import { courseDetails } from "@/api/utlis/schema";
 
 // Define proper TypeScript interface for code examples
 

@@ -6,8 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Delete, Edit, ExternalLink, Plus } from "lucide-react";
 import Link from "next/link";
 import { useUser } from "@clerk/nextjs";
-import { db } from "@/utlis/db";
-import { courseDetails, coursesTable } from "@/utlis/schema";
+import { db } from "@/api/utlis/db";
+import { courseDetails, coursesTable } from "@/api/utlis/schema";
 import { eq } from "drizzle-orm";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -25,7 +25,7 @@ export default function Page() {
   const [filteredCourses, setFilteredCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [searchQuery, setSearchQuery] = useState<string>("");
-  
+
   const userId = user?.emailAddresses[0]?.emailAddress;
 
   const fetchCourses = useCallback(async () => {
@@ -65,15 +65,18 @@ export default function Page() {
   const handleDelete = async (courseId: string) => {
     if (confirm("Are you sure you want to delete this course?")) {
       try {
-        await db.delete(coursesTable).where(eq(coursesTable.courseId, courseId));
-        await db.delete(courseDetails).where(eq(courseDetails.chapterId, courseId));
+        await db
+          .delete(coursesTable)
+          .where(eq(coursesTable.courseId, courseId));
+        await db
+          .delete(courseDetails)
+          .where(eq(courseDetails.chapterId, courseId));
         await fetchCourses();
       } catch (error) {
         console.error("Error deleting course:", error);
       }
     }
   };
-
 
   return (
     <div className="w-full p-4 md:p-8">
@@ -131,10 +134,7 @@ export default function Page() {
                   >
                     <Delete className="mr-2 h-4 w-4" /> Delete
                   </Button>
-                  <Link
-                    href={`/course/${course.courseId}/`}
-                    className="flex-1"
-                  >
+                  <Link href={`/course/${course.courseId}/`} className="flex-1">
                     <Button variant="outline" className="w-full">
                       <ExternalLink className="mr-2 h-4 w-4" /> View
                     </Button>
