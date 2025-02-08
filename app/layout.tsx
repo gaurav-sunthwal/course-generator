@@ -32,6 +32,10 @@ export default function RootLayout({
             name="viewport"
             content="width=device-width, initial-scale=1.0"
           />
+          <meta
+            name="google-site-verification"
+            content="4S-SnEkKgabU7Yr4avzDYY7XrbS0BRFh9hpZA8P6uLk"
+          />
         </head>
         <body
           className={`${geistSans.variable} ${geistMono.variable} antialiased`}
