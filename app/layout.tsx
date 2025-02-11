@@ -16,9 +16,9 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "AI-Powered Course Generator | Create Custom Courses Effortlessly",
-  description: "Discover Gaurav Sunthwal's AI-powered course generation platform. Generate complete, tailored courses with advanced AI technology for educators, students, and professionals. Simplify learning with innovative solutions.",
+  description:
+    "Discover Gaurav Sunthwal's AI-powered course generation platform. Generate complete, tailored courses with advanced AI technology for educators, students, and professionals. Simplify learning with innovative solutions.",
 };
-
 
 export default function RootLayout({
   children,
@@ -35,7 +35,7 @@ export default function RootLayout({
           />
           <meta
             name="google-site-verification"
-            content="4S-SnEkKgabU7Yr4avzDYY7XrbS0BRFh9hpZA8P6uLk"
+            content="brnrAvH6YNLyRPlnUkA-3zemJp4es-Q9WvGhuEnt-no"
           />
         </head>
         <body
