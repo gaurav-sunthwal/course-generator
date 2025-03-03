@@ -153,15 +153,16 @@ export default function ChapterPage() {
           </motion.section>
         ) : (
           // Fallback if no code examples exist
-          <motion.section variants={itemVariants}>
-            <h2 className="text-2xl font-semibold mb-4 flex items-center">
-              <BookOpen className="mr-2 h-6 w-6" />
-              Code Examples
-            </h2>
-            <div className="p-4 bg-gray-100 rounded-lg text-gray-500">
-              No code examples available for this chapter
-            </div>
-          </motion.section>
+          // <motion.section variants={itemVariants}>
+          //   <h2 className="text-2xl font-semibold mb-4 flex items-center">
+          //     <BookOpen className="mr-2 h-6 w-6" />
+          //     Code Examples
+          //   </h2>
+          //   <div className="p-4 bg-gray-100 rounded-lg text-gray-500">
+          //     No code examples available for this chapter
+          //   </div>
+          // </motion.section>
+          ""
         )}
 
         {/* Important Notes Section */}
