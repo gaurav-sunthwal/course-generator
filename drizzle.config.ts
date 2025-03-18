@@ -1,8 +1,10 @@
+import './envConfig.ts'
+
 const config = {
-  schema: "./utlis/schema.js",
+  schema: "./api/utlis/schema.js",
   dialect: "postgresql",
   dbCredentials: {
-    url: "postgresql://neondb_owner:npg_8cE5oFTztkWq@ep-jolly-base-a8ill4x3-pooler.eastus2.azure.neon.tech/neondb?sslmode=require",
+    url: process.env.NEXT_PUBLIC_DRIZZLE_DB_URL!,
   },
 };
 
