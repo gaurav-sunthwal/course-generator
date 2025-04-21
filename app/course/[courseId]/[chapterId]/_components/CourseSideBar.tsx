@@ -18,7 +18,7 @@ import Link from "next/link";
 import { Box, Spinner } from "@chakra-ui/react";
 
 export function CourseSideBar() {
-  const { courseId } = useParams();
+  const { courseId , chapterId } = useParams();
 
   const [title, setTitle] = useState<
     {
@@ -57,7 +57,7 @@ export function CourseSideBar() {
       fetchTitle();
     }
   }, [courseId]);
-
+  
   return (
     <Sidebar>
       <SidebarContent className="p-1">
@@ -85,7 +85,7 @@ export function CourseSideBar() {
                     href={`/course/${item.courseId}/${item.chapterId}`}
                     className="no-underline hover:text-blue-500"
                   >
-                    <SidebarMenuItem className="hover:bg-blue-100 hover:shadow-sm hover:rounded-lg p-2">
+                    <SidebarMenuItem className={item.chapterId === chapterId ? "bg-blue-100 shadow-sm rounded-lg p-2 text-black" : `hover:bg-blue-100 hover:shadow-sm hover:rounded-lg p-2`} >
                       {item.title}
                     </SidebarMenuItem>
                   </Link>

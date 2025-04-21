@@ -7,6 +7,7 @@ import { Clock, BookOpen, Lightbulb } from "lucide-react";
 import { motion } from "framer-motion";
 import { db } from "@/api/utlis/db";
 import { courseDetails } from "@/api/utlis/schema";
+import Footer from "@/app/_components/Footer";
 
 // Define proper TypeScript interface for code examples
 
@@ -179,6 +180,10 @@ export default function ChapterPage() {
           </motion.div>
         </motion.section>
       </motion.main>
+      <div className=" fixed bottom-3 ">
+
+      <Footer/>
+      </div>
     </motion.div>
   );
 }

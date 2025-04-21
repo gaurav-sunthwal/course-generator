@@ -13,7 +13,10 @@ export default function layout({ children }: { children: React.ReactNode }) {
           <HStack w="100%">
             <SidebarTrigger />
             <Box w="100%">
-              <Header params="course" />
+              <Box w="100%">
+                <Header params="course" />
+              </Box>
+             
             </Box>
           </HStack>
           {children}
