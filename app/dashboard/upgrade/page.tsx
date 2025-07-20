@@ -1,10 +1,26 @@
-"use client"
-
+import { Metadata } from "next";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { Check } from "lucide-react";
 import React from "react";
+import { UpgradeButton } from "./_components/UpgradeButton";
+
+export const metadata: Metadata = {
+  title: "Upgrade Plans - Course Generator",
+  description: "Choose from our premium plans to unlock advanced features and unlimited course generation capabilities.",
+  keywords: ["upgrade", "premium plans", "course generator", "AI courses", "subscription"],
+  openGraph: {
+    title: "Upgrade Plans - Course Generator",
+    description: "Choose from our premium plans to unlock advanced features.",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Upgrade Plans - Course Generator",
+    description: "Choose from our premium plans to unlock advanced features.",
+  },
+};
 
 const plans = [
   {
@@ -43,7 +59,7 @@ const plans = [
   },
 ];
 
-export default function Page() {
+export default function UpgradePage() {
   return (
     <div className="py-16 px-4 mx-auto max-w-7xl">
       <div className="text-center space-y-4 mb-12">
@@ -55,7 +71,7 @@ export default function Page() {
       </div>
       <div className="grid md:grid-cols-3 gap-8">
         {plans.map((plan, index) => (
-          <SubSubscriptionCard
+          <SubscriptionCard
             key={index}
             {...plan}
             variant={plan.isPopular ? "primary" : "default"}
@@ -79,7 +95,7 @@ interface PlanProps {
   variant?: "default" | "primary";
 }
 
-const SubSubscriptionCard = ({
+const SubscriptionCard = ({
   name,
   price,
   description,
@@ -87,9 +103,6 @@ const SubSubscriptionCard = ({
   isPopular,
   variant = "default",
 }: PlanProps) => {
-  const handalPayment = () => {
-    console.log("Handal Payment of" ,  name , "price is " , price )
-  };
   return (
     <>
       <Card
@@ -133,22 +146,12 @@ const SubSubscriptionCard = ({
             </div>
           ))}
         </div>
-        <Button
-          
-          className={cn(
-            "mt-8 w-full",
-            variant === "primary"
-              ? "bg-background text-primary hover:bg-background/90"
-              : ""
-          )}
-          variant={variant === "primary" ? "secondary" : "default"}
-          onClick={handalPayment}
-        >
-          Go Premium
-        </Button>
+        <UpgradeButton
+          planName={name}
+          planPrice={price}
+          variant={variant}
+        />
       </Card>
     </>
   );
 };
-
-// XAvMy8juRprOJChreKUx32zp

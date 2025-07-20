@@ -1,15 +1,10 @@
-"use client";
-
+import { Metadata } from "next";
+import { notFound } from "next/navigation";
 import { eq } from "drizzle-orm";
-import { useParams } from "next/navigation";
-import { useEffect, useState } from "react";
-import { Clock, BookOpen, Lightbulb } from "lucide-react";
-import { motion } from "framer-motion";
 import { db } from "@/api/utlis/db";
-import { courseDetails } from "@/api/utlis/schema";
-import Footer from "@/app/_components/Footer";
-
-// Define proper TypeScript interface for code examples
+import { courseDetails, coursesTable } from "@/api/utlis/schema";
+import ChapterStructuredData from "./ChapterStructuredData";
+import ChapterViewer from "./ChapterViewer";
 
 interface CodeExample {
   language: string;
@@ -24,166 +19,154 @@ interface ChapterData {
   content: string;
   codeExamples: CodeExample[];
   importantNotes: string;
+  courseId: string;
 }
 
-export default function ChapterPage() {
-  const { chapterId } = useParams();
-  const [chapterData, setChapterData] = useState<ChapterData | null>(null);
+interface PageProps {
+  params: Promise<{
+    courseId: string;
+    chapterId: string;
+  }>;
+}
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const data = await db
-        .select()
-        .from(courseDetails)
-        .where(eq(courseDetails.chapterId, chapterId as string))
-        .limit(1);
+// Generate metadata for SEO
+export async function generateMetadata({
+  params,
+}: PageProps): Promise<Metadata> {
+  const { courseId, chapterId } = await params;
 
-      if (data.length > 0) {
-        setChapterData({
-          ...data[0],
-          id: data[0].id.toString(),
-          // Parse code examples as array of CodeExample objects
-          codeExamples: JSON.parse(data[0].codeExamples) as CodeExample[],
-          importantNotes: JSON.parse(data[0].importantNotes),
-        });
-      }
-    };
-    fetchData();
-  }, [chapterId]);
+  try {
+    // Get chapter data
+    const chapterResult = await db
+      .select()
+      .from(courseDetails)
+      .where(eq(courseDetails.chapterId, chapterId))
+      .limit(1);
 
-  if (!chapterData) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        Loading...
-      </div>
-    );
-  }
+    if (chapterResult.length === 0) {
+      return {
+        title: "Chapter Not Found | CourseCrafter AI",
+        description: "The requested chapter could not be found.",
+      };
+    }
 
-  // Animation configurations
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
+    const chapter = chapterResult[0];
+    const title = chapter.title || "Untitled Chapter";
+    const description =
+      chapter.description || "Chapter content and learning materials.";
+
+    // Get course data for context
+    const courseResult = await db
+      .select()
+      .from(coursesTable)
+      .where(eq(coursesTable.courseId, courseId))
+      .limit(1);
+
+    const courseTitle =
+      courseResult.length > 0 ? courseResult[0].title : "Course";
+
+    return {
+      title: `${title} - ${courseTitle} | CourseCrafter AI`,
+      description: `${description} Part of the ${courseTitle} course.`,
+      keywords: [
+        "online learning",
+        "course chapter",
+        "educational content",
+        title.toLowerCase(),
+        courseTitle.toLowerCase(),
+        "tutorial",
+        "learning materials",
+      ],
+      openGraph: {
+        title: `${title} - ${courseTitle}`,
+        description: `${description} Part of the ${courseTitle} course.`,
+        type: "article",
+        url: `/course/${courseId}/${chapterId}`,
+        images: [
+          {
+            url: "https://kzmnsmni730q5bqyk3m6.lite.vusercontent.net/placeholder.svg?height=400&width=600",
+            width: 600,
+            height: 400,
+            alt: `${title} chapter preview`,
+          },
+        ],
       },
-    },
-  };
+      twitter: {
+        card: "summary_large_image",
+        title: `${title} - ${courseTitle}`,
+        description: `${description} Part of the ${courseTitle} course.`,
+      },
+      robots: {
+        index: true,
+        follow: true,
+        googleBot: {
+          index: true,
+          follow: true,
+          "max-video-preview": -1,
+          "max-image-preview": "large",
+          "max-snippet": -1,
+        },
+      },
+      alternates: {
+        canonical: `/course/${courseId}/${chapterId}`,
+      },
+    };
+  } catch (error) {
+    console.error("Error generating metadata:", error);
+    return {
+      title: "Chapter | CourseCrafter AI",
+      description: "Course chapter content and learning materials.",
+    };
+  }
+}
 
-  const itemVariants = {
-    hidden: { y: 20, opacity: 0 },
-    visible: {
-      y: 0,
-      opacity: 1,
-    },
-  };
+// Server component to fetch data
+export default async function ChapterPage({ params }: PageProps) {
+  const { courseId, chapterId } = await params;
 
-  return (
-    <motion.div
-      className="max-w-4xl mx-auto px-4 py-8"
-      initial="hidden"
-      animate="visible"
-      variants={containerVariants}
-    >
-      {/* Chapter Header Section */}
-      <motion.header className="mb-8" variants={itemVariants}>
-        <h1 className="text-4xl font-bold mb-2">{chapterData.title}</h1>
-        <p className="text-xl text-gray-600 mb-4">{chapterData.description}</p>
-        <div className="flex items-center text-sm text-gray-500">
-          <Clock className="mr-2 h-4 w-4" />
-          <span>
-            Estimated reading time: {chapterData.estimatedReadingTime}
-          </span>
-        </div>
-      </motion.header>
+  try {
+    // Get chapter data
+    const chapterResult = await db
+      .select()
+      .from(courseDetails)
+      .where(eq(courseDetails.chapterId, chapterId))
+      .limit(1);
 
-      <motion.main className="space-y-12" variants={containerVariants}>
-        {/* Main Content Section */}
-        <motion.section variants={itemVariants}>
-          <h2 className="text-2xl font-semibold mb-4 flex items-center">
-            <BookOpen className="mr-2 h-6 w-6" />
-            Chapter Content
-          </h2>
-          <div
-            className="prose max-w-none"
-            dangerouslySetInnerHTML={{ __html: chapterData.content }}
-          />
-        </motion.section>
+    if (chapterResult.length === 0) {
+      notFound();
+    }
 
-        {/* Code Examples Section - Fixed Structure */}
-        {/* Code Examples Section with Loading States */}
-        {chapterData.codeExamples?.length > 0 ? (
-          <motion.section variants={itemVariants}>
-            <h2 className="text-2xl font-semibold mb-4 flex items-center">
-              <BookOpen className="mr-2 h-6 w-6" />
-              Code Examples
-            </h2>
+    const chapter = chapterResult[0];
 
-            {chapterData.codeExamples.map((example, index) => (
-              <div
-                key={index}
-                className="mb-4 p-4 bg-gray-100 rounded-lg text-black"
-              >
-                {/* Show loading skeleton while code is being parsed */}
-                {!example.code ? (
-                  <div className="animate-pulse">
-                    <div className="h-4 bg-gray-300 rounded w-3/4 mb-2"></div>
-                    <div className="h-4 bg-gray-300 rounded w-1/2"></div>
-                  </div>
-                ) : (
-                  <>
-                    {/* Code Block with Fallback */}
-                    <pre className="whitespace-pre-wrap">
-                      <code
-                        className={`language-${
-                          example.language || "plaintext"
-                        }`}
-                      >
-                        {example.code || "// Code example not available"}
-                      </code>
-                    </pre>
+    // Parse the data
+    const chapterData: ChapterData = {
+      id: chapter.id.toString(),
+      title: chapter.title,
+      description: chapter.description,
+      estimatedReadingTime: chapter.estimatedReadingTime,
+      content: chapter.content,
+      codeExamples: JSON.parse(chapter.codeExamples) as CodeExample[],
+      importantNotes: JSON.parse(chapter.importantNotes),
+      courseId: chapter.courseId,
+    };
 
-                    {/* Language Indicator with Fallback */}
-                    <div className="mt-2 text-sm text-gray-500">
-                      Language: {example.language || "Not specified"}
-                    </div>
-                  </>
-                )}
-              </div>
-            ))}
-          </motion.section>
-        ) : (
-          // Fallback if no code examples exist
-          // <motion.section variants={itemVariants}>
-          //   <h2 className="text-2xl font-semibold mb-4 flex items-center">
-          //     <BookOpen className="mr-2 h-6 w-6" />
-          //     Code Examples
-          //   </h2>
-          //   <div className="p-4 bg-gray-100 rounded-lg text-gray-500">
-          //     No code examples available for this chapter
-          //   </div>
-          // </motion.section>
-          ""
-        )}
+    // Get course data for context
+    const courseResult = await db
+      .select()
+      .from(coursesTable)
+      .where(eq(coursesTable.courseId, courseId))
+      .limit(1);
 
-        {/* Important Notes Section */}
-        <motion.section variants={itemVariants}>
-          <h2 className="text-2xl font-semibold mb-4 flex items-center">
-            <Lightbulb className="mr-2 h-6 w-6" />
-            Important Notes
-          </h2>
-          <motion.div
-            className="mb-4 p-4 bg-yellow-50 rounded-lg border border-yellow-100 text-black"
-            variants={itemVariants}
-          >
-            {chapterData.importantNotes}
-          </motion.div>
-        </motion.section>
-      </motion.main>
-      <div className=" fixed bottom-3 ">
+    const course = courseResult.length > 0 ? courseResult[0] : null;
 
-      <Footer/>
-      </div>
-    </motion.div>
-  );
+    return (
+      <>
+        <ChapterStructuredData chapterData={chapterData} courseData={course} />
+        <ChapterViewer chapterData={chapterData} courseData={course} />
+      </>
+    );
+  } catch (error) {
+    console.error("Error fetching chapter data:", error);
+    notFound();
+  }
 }
