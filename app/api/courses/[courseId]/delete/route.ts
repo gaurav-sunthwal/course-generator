@@ -6,7 +6,7 @@ import { eq, and } from "drizzle-orm";
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { courseId: string } }
+  { params }: { params: Promise<{ courseId: string }> }
 ) {
   try {
     const user = await currentUser();
@@ -15,7 +15,7 @@ export async function POST(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { courseId } = params;
+    const { courseId } = await params;
     const userEmail = user.emailAddresses[0]?.emailAddress;
 
     if (!userEmail) {
@@ -44,7 +44,9 @@ export async function POST(
     }
 
     // Delete course details first (foreign key constraint)
-    await db.delete(courseDetails).where(eq(courseDetails.chapterId, courseId));
+    // POTENTIAL BUG: Ensure the column is named 'courseId' and not 'chapterId'
+    // in your 'courseDetails' schema if it links to the course.
+    await db.delete(courseDetails).where(eq(courseDetails.courseId, courseId));
 
     // Delete the course
     await db.delete(coursesTable).where(eq(coursesTable.courseId, courseId));
