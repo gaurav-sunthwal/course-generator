@@ -88,7 +88,7 @@ export const metadata: Metadata = {
     },
   },
   verification: {
-    google: "brnrAvH6YNLyRPlnUkA-3zemJp4es-Q9WvGhuEnt-no",
+    google: "ksoicZtrelkr_iM1l2MnWJDbjCLZ6_2Mom7VKvCxO8U",
   },
   other: {
     "theme-color": "#000000",
@@ -111,7 +111,7 @@ export default function RootLayout({
           />
           <meta
             name="google-site-verification"
-            content="brnrAvH6YNLyRPlnUkA-3zemJp4es-Q9WvGhuEnt-no"
+            content="ksoicZtrelkr_iM1l2MnWJDbjCLZ6_2Mom7VKvCxO8U"
           />
           {/* Security Headers */}
           <meta httpEquiv="X-Content-Type-Options" content="nosniff" />
