@@ -38,12 +38,27 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // Get all courses
     const courses = await db.select().from(coursesTable);
 
-    const coursePages = courses.map((course) => ({
-      url: `${baseUrl}/course/${course.courseId}`,
-      lastModified: new Date(course.updatedAt || course.createdAt),
-      changeFrequency: "weekly" as const,
-      priority: 0.8,
-    }));
+    const coursePages = courses.map((course) => {
+      // Safely handle date values
+      let lastModified: Date;
+      try {
+        const courseDate = course.updatedAt || course.createdAt;
+        lastModified = courseDate ? new Date(courseDate) : new Date();
+        // Validate the date
+        if (isNaN(lastModified.getTime())) {
+          lastModified = new Date();
+        }
+      } catch {
+        lastModified = new Date();
+      }
+
+      return {
+        url: `${baseUrl}/course/${course.courseId}`,
+        lastModified,
+        changeFrequency: "weekly" as const,
+        priority: 0.8,
+      };
+    });
 
     // Get all chapters
     const chapters = await db.select().from(courseDetails);
