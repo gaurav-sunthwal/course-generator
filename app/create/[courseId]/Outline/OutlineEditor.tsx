@@ -193,8 +193,8 @@ Based on the context, provide the single best rewritten version in the following
         for (const chapter of parsedData.chapters) {
           const chapterId = uuidv4();
           await db.insert(courseDetails).values({
-            title: chapter.title,
-            description: chapter.description,
+            title: chapter.title || chapter.chapterTitle,
+            description: chapter.description || chapter.chapterDescription,
             estimatedReadingTime: chapter.estimatedReadingTime,
             content: chapter.content,
             codeExamples: JSON.stringify(chapter.codeExamples || []),

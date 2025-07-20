@@ -3,6 +3,7 @@
 import { Clock, BookOpen, Lightbulb } from "lucide-react";
 import { motion } from "framer-motion";
 import Footer from "@/app/_components/Footer";
+import TextToSpeech from "./_components/TextToSpeech";
 
 interface CodeExample {
   language: string;
@@ -87,6 +88,10 @@ export default function ChapterViewer({
             <BookOpen className="mr-2 h-6 w-6" />
             Chapter Content
           </h2>
+
+          {/* Text-to-Speech Component */}
+          <TextToSpeech content={chapterData.content} />
+
           <div
             className="prose max-w-none"
             dangerouslySetInnerHTML={{ __html: chapterData.content }}
