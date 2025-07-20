@@ -5,6 +5,7 @@ import { coursesTable } from "@/api/utlis/schema";
 import { eq } from "drizzle-orm";
 import { redirect } from "next/navigation";
 import { DashboardContent } from "./_components/DashboardContent";
+import { Course, UserData } from "./types";
 
 export const metadata: Metadata = {
   title: "Dashboard - Course Generator",
@@ -30,22 +31,6 @@ export const metadata: Metadata = {
       "Manage and create your courses with our AI-powered course generator.",
   },
 };
-
-interface Course {
-  courseId: string;
-  title: string;
-  createdBy: string;
-  description: string;
-}
-
-interface UserData {
-  id: string;
-  fullName: string | null;
-  firstName: string | null;
-  lastName: string | null;
-  emailAddress: string | null;
-  imageUrl: string;
-}
 
 export default async function DashboardPage() {
   const user = await currentUser();

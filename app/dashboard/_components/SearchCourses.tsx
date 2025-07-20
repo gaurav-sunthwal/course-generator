@@ -2,14 +2,14 @@
 
 import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
+import { Course } from "../types";
 
 interface SearchCoursesProps {
-  initialCourses: any[];
+  initialCourses: Course[];
   onSearchChange: (query: string) => void;
 }
 
 export function SearchCourses({
-  initialCourses,
   onSearchChange,
 }: SearchCoursesProps) {
   const [searchQuery, setSearchQuery] = useState<string>("");

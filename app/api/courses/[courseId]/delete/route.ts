@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { currentUser } from "@clerk/nextjs/server";
 import { db } from "@/api/utlis/db";
 import { courseDetails, coursesTable } from "@/api/utlis/schema";
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 
 export async function POST(
   request: NextRequest,
@@ -29,8 +29,12 @@ export async function POST(
     const course = await db
       .select()
       .from(coursesTable)
-      .where(eq(coursesTable.courseId, courseId))
-      .where(eq(coursesTable.createdBy, userEmail));
+      .where(
+        and(
+          eq(coursesTable.courseId, courseId),
+          eq(coursesTable.createdBy, userEmail)
+        )
+      );
 
     if (!course || course.length === 0) {
       return NextResponse.json(

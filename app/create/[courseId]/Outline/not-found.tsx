@@ -21,8 +21,8 @@ export default function NotFound() {
           <BookOpen className="mx-auto h-16 w-16 text-muted-foreground mb-4" />
           <h1 className="text-3xl font-bold mb-2">Course Not Found</h1>
           <p className="text-muted-foreground mb-6">
-            The course you're looking for doesn't exist or may have been
-            removed.
+            {`The course you're looking for doesn't exist or may have been
+            removed.`}
           </p>
         </div>
 

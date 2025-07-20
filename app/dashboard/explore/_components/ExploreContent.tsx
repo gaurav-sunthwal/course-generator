@@ -1,19 +1,13 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ExternalLink, Search } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { SearchCoursesExplore } from "./SearchCoursesExplore";
-
-interface Course {
-  courseId: string;
-  title: string;
-  createdBy: string;
-  description: string;
-}
+import { Course } from "../../types";
 
 interface ExploreContentProps {
   initialCourses: Course[];
@@ -33,10 +27,7 @@ export function ExploreContent({ initialCourses }: ExploreContentProps) {
   return (
     <div className="p-4">
       <div className="flex justify-center mb-6 items-center">
-        <SearchCoursesExplore
-          initialCourses={initialCourses}
-          onSearchChange={handleSearchChange}
-        />
+        <SearchCoursesExplore onSearchChange={handleSearchChange} />
         <Button className="h-[40px] ml-3 items-center" variant={"ghost"}>
           <Search />
         </Button>

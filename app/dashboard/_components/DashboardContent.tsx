@@ -1,28 +1,13 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Delete, Edit, ExternalLink, Plus } from "lucide-react";
 import Link from "next/link";
 import { Card } from "@/components/ui/card";
 import { SearchCourses } from "./SearchCourses";
-
-interface Course {
-  courseId: string;
-  title: string;
-  createdBy: string;
-  description: string;
-}
-
-interface UserData {
-  id: string;
-  fullName: string | null;
-  firstName: string | null;
-  lastName: string | null;
-  emailAddress: string | null;
-  imageUrl: string;
-}
+import { Course, UserData } from "../types";
 
 interface DashboardContentProps {
   initialCourses: Course[];

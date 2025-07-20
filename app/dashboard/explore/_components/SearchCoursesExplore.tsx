@@ -3,12 +3,10 @@
 import { useState, useEffect } from "react";
 
 interface SearchCoursesExploreProps {
-  initialCourses: any[];
   onSearchChange: (query: string) => void;
 }
 
 export function SearchCoursesExplore({
-  initialCourses,
   onSearchChange,
 }: SearchCoursesExploreProps) {
   const [searchQuery, setSearchQuery] = useState<string>("");

@@ -2,6 +2,7 @@ import { Metadata } from "next";
 import { db } from "@/api/utlis/db";
 import { coursesTable } from "@/api/utlis/schema";
 import { ExploreContent } from "./_components/ExploreContent";
+import { Course } from "../types";
 
 export const metadata: Metadata = {
   title: "Explore Courses - Course Generator",
@@ -25,13 +26,6 @@ export const metadata: Metadata = {
     description: "Discover and explore courses created by our community.",
   },
 };
-
-interface Course {
-  courseId: string;
-  title: string;
-  createdBy: string;
-  description: string;
-}
 
 export default async function ExplorePage() {
   let courses: Course[] = [];
