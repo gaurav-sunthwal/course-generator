@@ -2,6 +2,7 @@ import { Metadata } from "next";
 import { SignIn } from "@clerk/nextjs";
 import loginImg from "@/app/img/loginImg.avif";
 import Image from "next/image";
+import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "Sign In - CourseCrafter AI",
@@ -47,7 +48,7 @@ export default function SignInPage() {
             />
 
             <div className="hidden lg:relative lg:block lg:p-12">
-              <a className="block text-white" href="/">
+              <Link className="block text-white" href="/">
                 <span className="sr-only">Home</span>
                 <svg
                   className="h-8 sm:h-10"
@@ -60,7 +61,7 @@ export default function SignInPage() {
                     fill="currentColor"
                   />
                 </svg>
-              </a>
+              </Link>
 
               <h2 className="mt-6 text-2xl font-bold text-white sm:text-3xl md:text-4xl">
                 Welcome to CourseCrafter AI 🚀
@@ -77,7 +78,7 @@ export default function SignInPage() {
           <main className="flex items-center justify-center px-8 py-8 sm:px-12 lg:col-span-7 lg:px-16 lg:py-12 xl:col-span-6">
             <div className="max-w-xl lg:max-w-3xl">
               <div className="relative -mt-16 block lg:hidden">
-                <a
+                <Link
                   className="inline-flex size-16 items-center justify-center rounded-full bg-white text-blue-600 sm:size-20"
                   href="/"
                 >
@@ -93,7 +94,7 @@ export default function SignInPage() {
                       fill="currentColor"
                     />
                   </svg>
-                </a>
+                </Link>
 
                 <h1 className="mt-2 text-2xl font-bold text-gray-900 sm:text-3xl md:text-4xl">
                   Welcome to CourseCrafter AI 🚀
