@@ -6,18 +6,27 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ExternalLink, Search } from "lucide-react";
 import { Card } from "@/components/ui/card";
-import { SearchCoursesExplore } from "./SearchCoursesExplore";
-import { Course } from "../../types";
 
-interface ExploreContentProps {
+interface Course {
+  courseId: string;
+  title: string;
+  createdBy: string;
+  description: string;
+}
+
+interface ExploreClientProps {
   initialCourses: Course[];
 }
 
-export function ExploreContent({ initialCourses }: ExploreContentProps) {
+export function ExploreClient({ initialCourses }: ExploreClientProps) {
   const [filteredCourses, setFilteredCourses] =
     useState<Course[]>(initialCourses);
+  const [searchQuery, setSearchQuery] = useState<string>("");
 
-  const handleSearchChange = (query: string) => {
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const query = e.target.value;
+    setSearchQuery(query);
+
     const filtered = initialCourses.filter((course) =>
       course.title.toLowerCase().includes(query.toLowerCase())
     );
@@ -27,7 +36,13 @@ export function ExploreContent({ initialCourses }: ExploreContentProps) {
   return (
     <div className="p-4">
       <div className="flex justify-center mb-6 items-center">
-        <SearchCoursesExplore onSearchChange={handleSearchChange} />
+        <input
+          type="text"
+          placeholder="Search for courses..."
+          value={searchQuery}
+          onChange={handleSearch}
+          className="border p-2 lg:w-1/2 sm:w-full rounded-lg"
+        />
         <Button className="h-[40px] ml-3 items-center" variant={"ghost"}>
           <Search />
         </Button>

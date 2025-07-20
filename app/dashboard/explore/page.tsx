@@ -1,8 +1,7 @@
 import { Metadata } from "next";
 import { db } from "@/api/utlis/db";
 import { coursesTable } from "@/api/utlis/schema";
-import { ExploreContent } from "./_components/ExploreContent";
-import { Course } from "../types";
+import { ExploreClient } from "./_components/ExploreClient";
 
 export const metadata: Metadata = {
   title: "Explore Courses - Course Generator",
@@ -27,15 +26,27 @@ export const metadata: Metadata = {
   },
 };
 
+interface Course {
+  courseId: string;
+  title: string;
+  createdBy: string;
+  description: string;
+}
+
 export default async function ExplorePage() {
   let courses: Course[] = [];
 
   try {
     const result = await db.select().from(coursesTable);
-    courses = result || [];
+    courses = result.map((course) => ({
+      courseId: course.courseId,
+      title: course.title,
+      createdBy: course.createdBy,
+      description: course.description,
+    }));
   } catch (error) {
     console.error("Error fetching course details:", error);
   }
 
-  return <ExploreContent initialCourses={courses} />;
+  return <ExploreClient initialCourses={courses} />;
 }

@@ -4,6 +4,7 @@ import "./globals.css";
 import { Provider } from "@/components/ui/provider";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Toaster } from "react-hot-toast";
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -15,9 +16,84 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "AI-Powered Course Generator | Create Custom Courses Effortlessly",
+  title: {
+    template: "%s | CourseCrafter AI",
+    default: "AI-Powered Course Generator | Create Custom Courses Effortlessly",
+  },
   description:
-    "Discover Gaurav Sunthwal's AI-powered course generation platform. Generate complete, tailored courses with advanced AI technology for educators, students, and professionals. Simplify learning with innovative solutions.",
+    "Transform any topic into comprehensive, engaging courses with our AI-powered platform. From programming and data science to marketing, cooking, or quantum physics - create professional courses instantly.",
+  keywords: [
+    "AI course generator",
+    "course creation",
+    "online learning",
+    "educational technology",
+    "AI-powered education",
+    "course builder",
+    "learning platform",
+    "professional courses",
+    "educational content",
+    "teaching tools",
+    "e-learning",
+    "digital education",
+  ],
+  authors: [{ name: "CourseCrafter AI" }],
+  creator: "CourseCrafter AI",
+  publisher: "CourseCrafter AI",
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_BASE_URL || "https://coursecrafter.ai"
+  ),
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: "/",
+    siteName: "CourseCrafter AI",
+    title: "AI-Powered Course Generator | Create Custom Courses Effortlessly",
+    description:
+      "Transform any topic into comprehensive, engaging courses with our AI-powered platform.",
+    images: [
+      {
+        url: "/og-image.jpg",
+        width: 1200,
+        height: 630,
+        alt: "CourseCrafter AI - AI-Powered Course Generator",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    site: "@coursecrafterai",
+    creator: "@coursecrafterai",
+    title: "AI-Powered Course Generator | Create Custom Courses Effortlessly",
+    description:
+      "Transform any topic into comprehensive, engaging courses with our AI-powered platform.",
+    images: ["/og-image.jpg"],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+  verification: {
+    google: "brnrAvH6YNLyRPlnUkA-3zemJp4es-Q9WvGhuEnt-no",
+  },
+  other: {
+    "theme-color": "#000000",
+    "color-scheme": "dark",
+  },
 };
 
 export default function RootLayout({
@@ -27,7 +103,7 @@ export default function RootLayout({
 }>) {
   return (
     <ClerkProvider>
-      <html lang="en">
+      <html lang="en" className="dark">
         <head>
           <meta
             name="viewport"
@@ -36,6 +112,18 @@ export default function RootLayout({
           <meta
             name="google-site-verification"
             content="brnrAvH6YNLyRPlnUkA-3zemJp4es-Q9WvGhuEnt-no"
+          />
+          {/* Security Headers */}
+          <meta httpEquiv="X-Content-Type-Options" content="nosniff" />
+          <meta httpEquiv="X-Frame-Options" content="DENY" />
+          <meta httpEquiv="X-XSS-Protection" content="1; mode=block" />
+          <meta
+            httpEquiv="Referrer-Policy"
+            content="strict-origin-when-cross-origin"
+          />
+          <meta
+            httpEquiv="Permissions-Policy"
+            content="camera=(), microphone=(), geolocation=()"
           />
         </head>
         <body

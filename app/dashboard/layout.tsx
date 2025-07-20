@@ -3,7 +3,6 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import React from "react";
 import { AppSidebar } from "./AppSidebar";
 import Header from "../_components/Header";
-import { HStack } from "@chakra-ui/react";
 
 export const metadata: Metadata = {
   title: {
@@ -31,12 +30,12 @@ export default function DashboardLayout({
     <SidebarProvider>
       <AppSidebar />
       <main className="w-full">
-        <HStack w={"100%"}>
+        <div className="flex w-full">
           <SidebarTrigger />
           <div className="w-full">
             <Header params="dashboard" />
           </div>
-        </HStack>
+        </div>
         {children}
       </main>
     </SidebarProvider>

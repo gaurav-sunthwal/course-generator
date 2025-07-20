@@ -6,26 +6,70 @@ import { Button } from "@/components/ui/button";
 import { Delete, Edit, ExternalLink, Plus } from "lucide-react";
 import Link from "next/link";
 import { Card } from "@/components/ui/card";
-import { SearchCourses } from "./SearchCourses";
-import { Course, UserData } from "../types";
+import { Input } from "@/components/ui/input";
+import { useRouter } from "next/navigation";
 
-interface DashboardContentProps {
+interface Course {
+  courseId: string;
+  title: string;
+  createdBy: string;
+  description: string;
+}
+
+interface UserData {
+  id: string;
+  fullName: string | null;
+  firstName: string | null;
+  lastName: string | null;
+  emailAddress: string | null;
+  imageUrl: string;
+}
+
+interface DashboardClientProps {
   initialCourses: Course[];
   user: UserData;
 }
 
-export function DashboardContent({
+export function DashboardClient({
   initialCourses,
   user,
-}: DashboardContentProps) {
+}: DashboardClientProps) {
   const [filteredCourses, setFilteredCourses] =
     useState<Course[]>(initialCourses);
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const router = useRouter();
 
-  const handleSearchChange = (query: string) => {
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const query = e.target.value;
+    setSearchQuery(query);
+
     const filtered = initialCourses.filter((course) =>
       course.title.toLowerCase().includes(query.toLowerCase())
     );
     setFilteredCourses(filtered);
+  };
+
+  const handleDelete = async (courseId: string) => {
+    if (!confirm("Are you sure you want to delete this course?")) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/courses/${courseId}/delete`, {
+        method: "POST",
+      });
+
+      if (response.ok) {
+        // Refresh the page to update the course list
+        router.refresh();
+      } else {
+        const error = await response.json();
+        alert(`Error deleting course: ${error.error}`);
+      }
+    } catch (error) {
+      console.error("Error deleting course:", error);
+      alert("Error deleting course. Please try again.");
+    }
   };
 
   return (
@@ -35,9 +79,11 @@ export function DashboardContent({
           Welcome, {user.fullName || "User"}
         </h1>
         <div className="w-full md:w-auto flex flex-col md:flex-row items-center gap-4">
-          <SearchCourses
-            initialCourses={initialCourses}
-            onSearchChange={handleSearchChange}
+          <Input
+            className="w-full md:w-64"
+            placeholder="Search courses..."
+            value={searchQuery}
+            onChange={handleSearch}
           />
           <Link href="/create">
             <Button>
@@ -67,33 +113,21 @@ export function DashboardContent({
                   {course.description || "No description available."}
                 </p>
                 <div className="flex flex-wrap gap-2 mt-3">
-                  <Link href={`/create/${course.courseId}/Outline`}>
-                    <Button variant="outline" className="flex-1">
+                  <Link
+                    href={`/create/${course.courseId}/Outline`}
+                    className="flex-1"
+                  >
+                    <Button variant="outline" className="w-full">
                       <Edit className="mr-2 h-4 w-4" /> Edit
                     </Button>
                   </Link>
-                  <form
-                    action={`/api/courses/${course.courseId}/delete`}
-                    method="POST"
+                  <Button
+                    variant="outline"
                     className="flex-1"
+                    onClick={() => handleDelete(course.courseId)}
                   >
-                    <Button
-                      variant="outline"
-                      className="w-full"
-                      type="submit"
-                      onClick={(e) => {
-                        if (
-                          !confirm(
-                            "Are you sure you want to delete this course?"
-                          )
-                        ) {
-                          e.preventDefault();
-                        }
-                      }}
-                    >
-                      <Delete className="mr-2 h-4 w-4" /> Delete
-                    </Button>
-                  </form>
+                    <Delete className="mr-2 h-4 w-4" /> Delete
+                  </Button>
                   <Link href={`/course/${course.courseId}/`} className="flex-1">
                     <Button variant="outline" className="w-full">
                       <ExternalLink className="mr-2 h-4 w-4" /> View

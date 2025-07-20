@@ -1,42 +1,103 @@
-"use client";
+import { Metadata } from "next";
+import { notFound, redirect } from "next/navigation";
+
 import { db } from "@/api/utlis/db";
 import { courseDetails } from "@/api/utlis/schema";
 import { eq } from "drizzle-orm";
-import { useParams, useRouter } from "next/navigation";
-import React, { useEffect } from "react";
 
-export default function Page() {
-  const { courseId } = useParams();
-  const router = useRouter();
+interface CoursePageProps {
+  params: Promise<{ courseId: string }>;
+}
 
-  useEffect(() => {
-    // Fetch the data from the database
-    const fetchData = async () => {
-      try {
-        const data = await db
-          .select()
-          .from(courseDetails)
-          .where(eq(courseDetails.courseId, courseId as string))
-          .limit(1); // Limit to 1 result for the specific courseId
+export async function generateMetadata({
+  params,
+}: CoursePageProps): Promise<Metadata> {
+  const { courseId } = await params;
 
-        if (data.length > 0) {
-          // If the courseId matches, get the first chapterId from the fetched data
-          const firstChapterId = data[0].chapterId;
+  try {
+    const courseData = await db
+      .select()
+      .from(courseDetails)
+      .where(eq(courseDetails.courseId, courseId))
+      .limit(1);
 
-          // Redirect to the first chapter page
-          router.push(`/course/${courseId}/${firstChapterId}`);
-        } else {
-          console.error("Course not found");
-        }
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
+    if (courseData.length === 0) {
+      return {
+        title: "Course Not Found",
+        description: "The requested course could not be found.",
+      };
+    }
+
+    const course = courseData[0];
+
+    return {
+      title: `${course.title || "Course"} - CourseCrafter AI`,
+      description:
+        course.description ||
+        "Explore this comprehensive course created with AI assistance.",
+      keywords: [
+        "online course",
+        "learning",
+        "education",
+        "AI-generated content",
+      ],
+      openGraph: {
+        title: `${course.title || "Course"} - CourseCrafter AI`,
+        description:
+          course.description ||
+          "Explore this comprehensive course created with AI assistance.",
+        type: "website",
+      },
+      twitter: {
+        card: "summary_large_image",
+        title: `${course.title || "Course"} - CourseCrafter AI`,
+        description:
+          course.description ||
+          "Explore this comprehensive course created with AI assistance.",
+      },
     };
+  } catch (error) {
+    console.error("Error generating metadata:", error);
+    return {
+      title: "Course - CourseCrafter AI",
+      description:
+        "Explore this comprehensive course created with AI assistance.",
+    };
+  }
+}
 
-    // Call fetchData
-    fetchData();
-    console.log("Fetching data");
-  }, [courseId, router]);
+export default async function CoursePage({ params }: CoursePageProps) {
+  const { courseId } = await params;
 
-  return <div>Loading...</div>;
+  try {
+    const data = await db
+      .select()
+      .from(courseDetails)
+      .where(eq(courseDetails.courseId, courseId))
+      .limit(1);
+
+    if (data.length === 0) {
+      notFound();
+    }
+
+    // If the courseId matches, get the first chapterId from the fetched data
+    const firstChapterId = data[0].chapterId;
+
+    // Redirect to the first chapter page
+    redirect(`/course/${courseId}/${firstChapterId}`);
+  } catch (error) {
+    const data = await db
+      .select()
+      .from(courseDetails)
+      .where(eq(courseDetails.courseId, courseId))
+      .limit(1);
+
+    if (data.length === 0) {
+      notFound();
+    }
+    const firstChapterId = data[0].chapterId;
+    redirect(`/course/${courseId}/${firstChapterId}`);
+    console.error("Error fetching course data:", error);
+    notFound();
+  }
 }

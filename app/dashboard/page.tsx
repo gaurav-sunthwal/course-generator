@@ -4,8 +4,7 @@ import { db } from "@/api/utlis/db";
 import { coursesTable } from "@/api/utlis/schema";
 import { eq } from "drizzle-orm";
 import { redirect } from "next/navigation";
-import { DashboardContent } from "./_components/DashboardContent";
-import { Course, UserData } from "./types";
+import { DashboardClient } from "./_components/DashboardClient";
 
 export const metadata: Metadata = {
   title: "Dashboard - Course Generator",
@@ -32,6 +31,22 @@ export const metadata: Metadata = {
   },
 };
 
+interface Course {
+  courseId: string;
+  title: string;
+  createdBy: string;
+  description: string;
+}
+
+interface UserData {
+  id: string;
+  fullName: string | null;
+  firstName: string | null;
+  lastName: string | null;
+  emailAddress: string | null;
+  imageUrl: string;
+}
+
 export default async function DashboardPage() {
   const user = await currentUser();
 
@@ -50,7 +65,12 @@ export default async function DashboardPage() {
         .from(coursesTable)
         .where(eq(coursesTable.createdBy, userEmail));
 
-      courses = result || [];
+      courses = result.map((course) => ({
+        courseId: course.courseId,
+        title: course.title,
+        createdBy: course.createdBy,
+        description: course.description,
+      }));
     } catch (error) {
       console.error("Error fetching course details:", error);
     }
@@ -66,5 +86,5 @@ export default async function DashboardPage() {
     imageUrl: user.imageUrl,
   };
 
-  return <DashboardContent initialCourses={courses} user={userData} />;
+  return <DashboardClient initialCourses={courses} user={userData} />;
 }

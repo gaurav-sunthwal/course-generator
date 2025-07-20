@@ -1,24 +1,53 @@
-import { Box } from "@chakra-ui/react";
+import { Metadata } from "next";
 import { SignUp } from "@clerk/nextjs";
 import loginImg from "@/app/img/loginImg.avif";
 import Image from "next/image";
 
-export default function Page() {
+export const metadata: Metadata = {
+  title: "Sign Up - CourseCrafter AI",
+  description:
+    "Create your CourseCrafter AI account to start creating professional courses with AI assistance.",
+  keywords: [
+    "sign up",
+    "register",
+    "course creation",
+    "AI courses",
+    "educational platform",
+    "user registration",
+  ],
+  robots: {
+    index: false, // Don't index authentication pages
+    follow: true,
+  },
+  openGraph: {
+    title: "Sign Up - CourseCrafter AI",
+    description:
+      "Create your CourseCrafter AI account to start creating professional courses with AI assistance.",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Sign Up - CourseCrafter AI",
+    description:
+      "Create your CourseCrafter AI account to start creating professional courses with AI assistance.",
+  },
+};
+
+export default function SignUpPage() {
   return (
     <>
-  
-
-      <section >
+      <section>
         <div className="lg:grid lg:min-h-screen lg:grid-cols-12">
           <section className="relative flex h-32 items-end bg-gray-900 lg:col-span-5 lg:h-full xl:col-span-6">
             <Image
-              alt=""
+              alt="CourseCrafter AI Registration"
               src={loginImg}
               className="absolute inset-0 h-full w-full object-cover opacity-80"
+              priority
             />
 
             <div className="hidden lg:relative lg:block lg:p-12">
-              <a className="block text-white" href="#">
+              <a className="block text-white" href="/">
                 <span className="sr-only">Home</span>
                 <svg
                   className="h-8 sm:h-10"
@@ -33,13 +62,13 @@ export default function Page() {
                 </svg>
               </a>
               <h2 className="mt-6 text-2xl font-bold text-white sm:text-3xl md:text-4xl">
-                Welcome to MockMate 🦑
+                Join CourseCrafter AI 🚀
               </h2>
 
               <p className="mt-4 leading-relaxed text-white/90">
-                Ace your interviews with our AI-powered mock interview platform.
-                Practice with realistic scenarios and get personalized feedback
-                to boost your confidence and land your dream job.
+                Start creating professional courses with AI assistance.
+                Transform any topic into comprehensive, engaging learning
+                experiences that inspire and educate.
               </p>
             </div>
           </section>
@@ -49,7 +78,7 @@ export default function Page() {
               <div className="relative -mt-16 block lg:hidden">
                 <a
                   className="inline-flex size-16 items-center justify-center rounded-full bg-white text-blue-600 sm:size-20"
-                  href="#"
+                  href="/"
                 >
                   <span className="sr-only">Home</span>
                   <svg
@@ -66,18 +95,19 @@ export default function Page() {
                 </a>
 
                 <h1 className="mt-2 text-2xl font-bold text-gray-900 sm:text-3xl md:text-4xl">
-                  Welcome to Squid 🦑
+                  Join CourseCrafter AI 🚀
                 </h1>
 
                 <p className="mt-4 leading-relaxed text-gray-500">
-                  Lorem, ipsum dolor sit amet consectetur adipisicing elit.
-                  Eligendi nam dolorum aliquam, quibusdam aperiam voluptatum.
+                  Start creating professional courses with AI assistance.
+                  Transform any topic into comprehensive, engaging learning
+                  experiences that inspire and educate.
                 </p>
               </div>
 
-              <Box>
+              <div>
                 <SignUp />
-              </Box>
+              </div>
             </div>
           </main>
         </div>

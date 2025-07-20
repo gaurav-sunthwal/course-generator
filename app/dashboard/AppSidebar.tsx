@@ -1,4 +1,5 @@
 import { Compass, Home, LogOut, Users } from "lucide-react";
+import Link from "next/link";
 
 import {
   Sidebar,
@@ -11,7 +12,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import {  SignOutButton } from "@clerk/nextjs";
+import { SignOutButton } from "@clerk/nextjs";
 
 // Menu items.
 const items = [
@@ -38,7 +39,7 @@ export function AppSidebar() {
     <Sidebar collapsible="icon">
       <SidebarContent className="mt-2">
         <SidebarGroup>
-          <SidebarGroupLabel className="font-bold text-xl dark:text-white  text-black">
+          <SidebarGroupLabel className="font-bold text-xl dark:text-white text-black">
             Dashboard
           </SidebarGroupLabel>
           <SidebarGroupContent>
@@ -46,10 +47,10 @@ export function AppSidebar() {
               {items.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
-                    <a href={item.url} className="font-bold">
+                    <Link href={item.url} className="font-bold">
                       <item.icon />
                       <span>{item.title}</span>
-                    </a>
+                    </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
@@ -58,7 +59,6 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
       <SidebarFooter>
-
         <SignOutButton>
           <SidebarMenuButton>
             <LogOut />
