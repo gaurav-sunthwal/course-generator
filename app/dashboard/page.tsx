@@ -1,8 +1,5 @@
 import { Metadata } from "next";
 import { currentUser } from "@clerk/nextjs/server";
-import { db } from "@/api/utlis/db";
-import { coursesTable } from "@/api/utlis/schema";
-import { eq } from "drizzle-orm";
 import { redirect } from "next/navigation";
 import { DashboardClient } from "./_components/DashboardClient";
 
@@ -60,19 +57,23 @@ export default async function DashboardPage() {
 
   if (userEmail) {
     try {
-      const result = await db
-        .select()
-        .from(coursesTable)
-        .where(eq(coursesTable.createdBy, userEmail));
-
-      courses = result.map((course) => ({
+      const res = await fetch(
+        `${
+          process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"
+        }/api/db?createdBy=${encodeURIComponent(userEmail)}`,
+        {
+          cache: "no-store",
+        }
+      );
+      const data = await res.json();
+      courses = (data?.data?.courses?.records || []).map((course: Course) => ({
         courseId: course.courseId,
         title: course.title,
         createdBy: course.createdBy,
         description: course.description,
       }));
     } catch (error) {
-      console.error("Error fetching course details:", error);
+      console.error("Error fetching course details from API:", error);
     }
   }
 

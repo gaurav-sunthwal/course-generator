@@ -14,11 +14,11 @@ import {
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { eq } from "drizzle-orm";
-import { db } from "@/api/utlis/db";
-import { courseDetails, coursesTable } from "@/api/utlis/schema";
-import { chatSession } from "@/api/utlis/gamini";
+import { db } from "@/app/api/utlis/db";
+import { courseDetails, coursesTable } from "@/app/api/utlis/schema";
 import { v4 as uuidv4 } from "uuid";
 import toast from "react-hot-toast";
+import { chatSession } from "@/app/api/utlis/gamini";
 
 interface Chapter {
   id: string;

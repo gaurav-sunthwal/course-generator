@@ -1,6 +1,6 @@
 "use client";
-import { db } from "@/api/utlis/db";
-import { courseDetails } from "@/api/utlis/schema";
+import { db } from "@/app/api/utlis/db";
+import { courseDetails } from "@/app/api/utlis/schema";
 import { Button } from "@/components/ui/button";
 import { HStack } from "@chakra-ui/react";
 import { eq } from "drizzle-orm";
@@ -65,7 +65,7 @@ export default function Footer() {
         <Button
           variant={"outline"}
           onClick={handlePrevious}
-            disabled={currentIndex <= 0}
+          disabled={currentIndex <= 0}
         >
           <StepBack className="mr-2" /> Previous Page
         </Button>
@@ -76,7 +76,7 @@ export default function Footer() {
         <Button
           variant={"outline"}
           onClick={handleNext}
-            disabled={currentIndex >= chapters.length - 1}
+          disabled={currentIndex >= chapters.length - 1}
         >
           Next Page <StepForward className="ml-2" />
         </Button>

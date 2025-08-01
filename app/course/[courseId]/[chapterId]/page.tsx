@@ -1,8 +1,5 @@
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { eq } from "drizzle-orm";
-import { db } from "@/api/utlis/db";
-import { courseDetails, coursesTable } from "@/api/utlis/schema";
 import ChapterStructuredData from "./ChapterStructuredData";
 import ChapterViewer from "./ChapterViewer";
 
@@ -36,12 +33,16 @@ export async function generateMetadata({
   const { courseId, chapterId } = await params;
 
   try {
-    // Get chapter data
-    const chapterResult = await db
-      .select()
-      .from(courseDetails)
-      .where(eq(courseDetails.chapterId, chapterId))
-      .limit(1);
+    // Get chapter data from API
+    const chapterRes = await fetch(
+      `${
+        process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"
+      }/api/db?chapterId=${encodeURIComponent(chapterId)}`,
+      { cache: "no-store" }
+    );
+    const chapterDataJson = await chapterRes.json();
+    console.log(chapterDataJson)
+    const chapterResult = chapterDataJson?.data?.courseDetails?.records || [];
 
     if (chapterResult.length === 0) {
       return {
@@ -55,13 +56,15 @@ export async function generateMetadata({
     const description =
       chapter.description || "Chapter content and learning materials.";
 
-    // Get course data for context
-    const courseResult = await db
-      .select()
-      .from(coursesTable)
-      .where(eq(coursesTable.courseId, courseId))
-      .limit(1);
-
+    // Get course data for context from API
+    const courseRes = await fetch(
+      `${
+        process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"
+      }/api/db?courseId=${encodeURIComponent(courseId)}`,
+      { cache: "no-store" }
+    );
+    const courseDataJson = await courseRes.json();
+    const courseResult = courseDataJson?.data?.courses?.records || [];
     const courseTitle =
       courseResult.length > 0 ? courseResult[0].title : "Course";
 
@@ -125,12 +128,15 @@ export default async function ChapterPage({ params }: PageProps) {
   const { courseId, chapterId } = await params;
 
   try {
-    // Get chapter data
-    const chapterResult = await db
-      .select()
-      .from(courseDetails)
-      .where(eq(courseDetails.chapterId, chapterId))
-      .limit(1);
+    // Get chapter data from API
+    const chapterRes = await fetch(
+      `${
+        process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"
+      }/api/db?chapterId=${encodeURIComponent(chapterId)}`,
+      { cache: "no-store" }
+    );
+    const chapterDataJson = await chapterRes.json();
+    const chapterResult = chapterDataJson?.data?.courseDetails?.records || [];
 
     if (chapterResult.length === 0) {
       notFound();
@@ -145,18 +151,20 @@ export default async function ChapterPage({ params }: PageProps) {
       description: chapter.description,
       estimatedReadingTime: chapter.estimatedReadingTime,
       content: chapter.content,
-      codeExamples: JSON.parse(chapter.codeExamples) as CodeExample[],
+      codeExamples: JSON.parse(chapter.codeExamples),
       importantNotes: JSON.parse(chapter.importantNotes),
       courseId: chapter.courseId,
     };
 
-    // Get course data for context
-    const courseResult = await db
-      .select()
-      .from(coursesTable)
-      .where(eq(coursesTable.courseId, courseId))
-      .limit(1);
-
+    // Get course data for context from API
+    const courseRes = await fetch(
+      `${
+        process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"
+      }/api/db?courseId=${encodeURIComponent(courseId)}`,
+      { cache: "no-store" }
+    );
+    const courseDataJson = await courseRes.json();
+    const courseResult = courseDataJson?.data?.courses?.records || [];
     const course = courseResult.length > 0 ? courseResult[0] : null;
 
     return (

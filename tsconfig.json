@@ -27,7 +27,7 @@
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts",
-    "api/utlis/gamini.js"
+    "app/api/utlis/gamini.js"
   ],
   "exclude": ["node_modules"]
 }

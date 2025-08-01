@@ -20,11 +20,11 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Loader2, ImageIcon } from "lucide-react";
 import Image from "next/image";
-import { chatSession } from "@/api/utlis/gamini";
-import { db } from "@/api/utlis/db";
-import { coursesTable } from "@/api/utlis/schema";
+import { db } from "@/app/api/utlis/db";
+import { coursesTable } from "@/app/api/utlis/schema";
 import moment from "moment";
 import { useRouter } from "next/navigation";
+import { chatSession } from "@/app/api/utlis/gamini";
 
 const formSchema = z.object({
   title: z.string().min(1, "Title is required"),

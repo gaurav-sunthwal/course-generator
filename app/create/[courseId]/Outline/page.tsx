@@ -1,8 +1,5 @@
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { eq } from "drizzle-orm";
-import { db } from "@/api/utlis/db";
-import { coursesTable } from "@/api/utlis/schema";
 import StructuredData from "./StructuredData";
 import OutlineEditor from "./OutlineEditor";
 
@@ -27,11 +24,14 @@ export async function generateMetadata({
   const { courseId } = await params;
 
   try {
-    const result = await db
-      .select()
-      .from(coursesTable)
-      .where(eq(coursesTable.courseId, courseId))
-      .limit(1);
+    const res = await fetch(
+      `${
+        process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"
+      }/api/db?courseId=${encodeURIComponent(courseId)}`,
+      { cache: "no-store" }
+    );
+    const data = await res.json();
+    const result = data?.data?.courses?.records || [];
 
     if (result.length === 0) {
       return {
@@ -87,11 +87,14 @@ export default async function OutlinePage({ params }: PageProps) {
   const { courseId } = await params;
 
   try {
-    const result = await db
-      .select()
-      .from(coursesTable)
-      .where(eq(coursesTable.courseId, courseId))
-      .limit(1);
+    const res = await fetch(
+      `${
+        process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"
+      }/api/db?courseId=${encodeURIComponent(courseId)}`,
+      { cache: "no-store" }
+    );
+    const data = await res.json();
+    const result = data?.data?.courses?.records || [];
 
     if (result.length === 0) {
       notFound();

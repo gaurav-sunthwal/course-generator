@@ -1,6 +1,6 @@
 import { MetadataRoute } from "next";
-import { db } from "@/api/utlis/db";
-import { coursesTable, courseDetails } from "@/api/utlis/schema";
+import { db } from "@/app/api/utlis/db";
+import { coursesTable, courseDetails } from "@/app/api/utlis/schema";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl =
