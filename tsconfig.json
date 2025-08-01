@@ -28,6 +28,6 @@
     "**/*.tsx",
     ".next/types/**/*.ts",
     "app/api/utlis/gamini.js"
-  ],
+, "app/api/db/route.js"  ],
   "exclude": ["node_modules"]
 }

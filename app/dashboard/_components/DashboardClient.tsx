@@ -37,6 +37,7 @@ export function DashboardClient({
   const [filteredCourses, setFilteredCourses] =
     useState<Course[]>(initialCourses);
   const [searchQuery, setSearchQuery] = useState<string>("");
+  const [isDeleting, setIsDeleting] = useState<string | null>(null);
   const router = useRouter();
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -50,25 +51,42 @@ export function DashboardClient({
   };
 
   const handleDelete = async (courseId: string) => {
-    if (!confirm("Are you sure you want to delete this course?")) {
+    if (!confirm("Are you sure you want to delete this course? This action cannot be undone.")) {
       return;
     }
 
+    setIsDeleting(courseId);
+
     try {
-      const response = await fetch(`/api/courses/${courseId}/delete`, {
-        method: "POST",
+      // Fixed: Use DELETE method with proper query parameters
+      const response = await fetch(`/api/db?type=course&id=${courseId}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
       });
 
+      const data = await response.json();
+
       if (response.ok) {
-        // Refresh the page to update the course list
+        // Update the local state immediately for better UX
+        const updatedCourses = initialCourses.filter(course => course.courseId !== courseId);
+        setFilteredCourses(updatedCourses.filter((course) =>
+          course.title.toLowerCase().includes(searchQuery.toLowerCase())
+        ));
+        
+        alert("Course deleted successfully!");
+        
+        // Also refresh the page to ensure data consistency
         router.refresh();
       } else {
-        const error = await response.json();
-        alert(`Error deleting course: ${error.error}`);
+        alert(`Error deleting course: ${data.message || data.error || 'Unknown error'}`);
       }
     } catch (error) {
       console.error("Error deleting course:", error);
-      alert("Error deleting course. Please try again.");
+      alert("Error deleting course. Please check your connection and try again.");
+    } finally {
+      setIsDeleting(null);
     }
   };
 
@@ -125,8 +143,18 @@ export function DashboardClient({
                     variant="outline"
                     className="flex-1"
                     onClick={() => handleDelete(course.courseId)}
+                    disabled={isDeleting === course.courseId}
                   >
-                    <Delete className="mr-2 h-4 w-4" /> Delete
+                    {isDeleting === course.courseId ? (
+                      <>
+                        <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                        Deleting...
+                      </>
+                    ) : (
+                      <>
+                        <Delete className="mr-2 h-4 w-4" /> Delete
+                      </>
+                    )}
                   </Button>
                   <Link href={`/course/${course.courseId}/`} className="flex-1">
                     <Button variant="outline" className="w-full">
