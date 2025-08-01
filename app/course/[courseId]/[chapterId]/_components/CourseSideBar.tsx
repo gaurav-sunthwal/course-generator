@@ -10,9 +10,6 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { useEffect, useState } from "react";
-import { courseDetails } from "@/app/api/utlis/schema";
-import { db } from "@/app/api/utlis/db";
-import { eq } from "drizzle-orm";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { Box, Spinner } from "@chakra-ui/react";
