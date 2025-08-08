@@ -2,7 +2,7 @@ import { Metadata } from "next";
 import CourseCrafterLanding from "./_components/HomeClient";
 
 export const metadata: Metadata = {
-  title: "AI-Powered Course Generator | Create Custom Courses Effortlessly",
+  title: "AI-Powered Course Generator By Gaurav Sunthwal | Create Custom Courses Effortlessly",
   description:
     "Transform any topic into comprehensive, engaging courses with our AI-powered platform. From programming and data science to marketing, cooking, or quantum physics - create professional courses instantly.",
   keywords: [
@@ -16,10 +16,13 @@ export const metadata: Metadata = {
     "professional courses",
     "educational content",
     "teaching tools",
+    "Gaurav Sunthwal",
+    "CourseCrafter AI",
+    "custom courses",
   ],
   authors: [{ name: "CourseCrafter AI" }],
-  creator: "CourseCrafter AI",
-  publisher: "CourseCrafter AI",
+  creator: "Gaurav Sunthwal",
+  publisher: "Gaurav Sunthwal",
   formatDetection: {
     email: false,
     address: false,
@@ -32,7 +35,7 @@ export const metadata: Metadata = {
     canonical: "/",
   },
   openGraph: {
-    title: "AI-Powered Course Generator | Create Custom Courses Effortlessly",
+    title: "AI-Powered Course Generator By Gaurav Sunthwal | Create Custom Courses Effortlessly",
     description:
       "Transform any topic into comprehensive, engaging courses with our AI-powered platform. From programming and data science to marketing, cooking, or quantum physics - create professional courses instantly.",
     url: "/",
