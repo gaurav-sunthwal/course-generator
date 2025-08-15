@@ -1,4 +1,4 @@
-// Updated CreateCourseClient component using the new database API
+// Updated CreateCourseClient component with improved JSON handling
 "use client";
 
 import { useState } from "react";
@@ -24,6 +24,147 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { chatSession } from "@/app/api/utlis/gamini";
 import { dbClient } from "@/lib/dbClient"; // Import our database client
+
+const generateCoursePrompt = (
+  title: string,
+  description: string,
+  category: string
+) => {
+  return `You are a professional course curriculum designer. Create a comprehensive course outline with EXACTLY 10 chapters.
+
+STRICT REQUIREMENTS:
+1. Output MUST be valid JSON only - no text before or after
+2. Use the EXACT structure provided below
+3. Each chapter must have meaningful, detailed content
+4. Descriptions should be 2-3 sentences explaining what students will learn
+5. Follow the exact field names and structure
+
+COURSE DETAILS:
+- Title: "${title}"
+- Description: "${description}"
+- Category: "${category}"
+
+REQUIRED JSON STRUCTURE (copy this format exactly):
+
+{
+  "courseTitle": "Course title here",
+  "description": "Course description here",
+  "chapters": [
+    {
+      "title": "Chapter title",
+      "description": "Detailed 2-3 sentence description of what students will learn in this chapter."
+    },
+    {
+      "title": "Chapter title",
+      "description": "Detailed 2-3 sentence description of what students will learn in this chapter."
+    },
+    {
+      "title": "Chapter title",
+      "description": "Detailed 2-3 sentence description of what students will learn in this chapter."
+    },
+    {
+      "title": "Chapter title",
+      "description": "Detailed 2-3 sentence description of what students will learn in this chapter."
+    },
+    {
+      "title": "Chapter title",
+      "description": "Detailed 2-3 sentence description of what students will learn in this chapter."
+    },
+    {
+      "title": "Chapter title",
+      "description": "Detailed 2-3 sentence description of what students will learn in this chapter."
+    },
+    {
+      "title": "Chapter title",
+      "description": "Detailed 2-3 sentence description of what students will learn in this chapter."
+    },
+    {
+      "title": "Chapter title",
+      "description": "Detailed 2-3 sentence description of what students will learn in this chapter."
+    },
+    {
+      "title": "Chapter title",
+      "description": "Detailed 2-3 sentence description of what students will learn in this chapter."
+    },
+    {
+      "title": "Chapter title",
+      "description": "Detailed 2-3 sentence description of what students will learn in this chapter."
+    }
+  ]
+}
+
+CRITICAL RULES:
+- Return ONLY the JSON object above
+- NO markdown formatting (no \`\`\`json or \`\`\`)
+- NO explanatory text before or after the JSON
+- NO notes, comments, or additional information
+- Ensure all quotes are properly escaped
+- Must have exactly 10 chapters numbered 1-10
+- Each chapter description must be educational and specific
+
+Generate the course content now:`;
+};
+
+// Function to clean and extract JSON from AI response
+const cleanJsonResponse = (response: string): string => {
+  let cleaned = response.trim();
+
+  // Remove common markdown formatting
+  cleaned = cleaned.replace(/```json\s*/gi, "");
+  cleaned = cleaned.replace(/```\s*/g, "");
+
+  // Remove any text before the first {
+  const firstBrace = cleaned.indexOf("{");
+  if (firstBrace > 0) {
+    cleaned = cleaned.substring(firstBrace);
+  }
+
+  // Remove any text after the last }
+  const lastBrace = cleaned.lastIndexOf("}");
+  if (lastBrace !== -1 && lastBrace < cleaned.length - 1) {
+    cleaned = cleaned.substring(0, lastBrace + 1);
+  }
+
+  // Remove any leading/trailing whitespace and newlines
+  cleaned = cleaned.trim();
+
+  return cleaned;
+};
+
+// Function to validate course JSON structure
+const validateCourseJson = (jsonData: {
+  courseTitle:string,
+  description:string,
+  chapters:number
+}): boolean => {
+  if (!jsonData || typeof jsonData !== "object") {
+    return false;
+  }
+
+  // Check required fields
+  if (!jsonData.courseTitle || !jsonData.description || !jsonData.chapters) {
+    return false;
+  }
+
+  // Check chapters structure
+  if (!Array.isArray(jsonData.chapters) || jsonData.chapters.length !== 10) {
+    return false;
+  }
+
+  // Validate each chapter
+  for (const chapter of jsonData.chapters) {
+    if (
+      !chapter.title ||
+      !chapter.description ||
+      typeof chapter.title !== "string" ||
+      typeof chapter.description !== "string"
+    ) {
+      return false;
+    }
+  }
+
+  return true;
+};
 
 const formSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -91,42 +232,45 @@ export function CreateCourseClient({
 
     try {
       // Generate AI content
-      const props = `
-      Generate a highly detailed and comprehensive course tutorial with the following requirements:
-      
-      **Title:** "${data.title}"  
-      **Description:** "${data.description}"  
-      **Category:** "${data.category}"  
-      **Language:** "English"  
-    
-      give 10 chapters with there basic information for my outline page so just want title and description 
-
-      **Output Format:** Provide the course tutorial in JSON format ,  "courseTitle" , "description".
-    
-      Ensure that this is a top-quality, research-driven, and impactful course that can serve both beginners and experts.
-
-      dont give any **Note:**  eveything should be in JSON format
-    `;
+      const prompt = generateCoursePrompt(
+        data.title,
+        data.description,
+        data.category
+      );
 
       console.log("Generating AI content...");
-      const result = await chatSession.sendMessage(props);
-      const mockJSONResp = result.response
-        .text()
-        .replace("```json", "")
-        .replace("```", "");
+      const result = await chatSession.sendMessage(prompt);
+      const rawResponse = result.response.text();
 
-      console.log("AI Response:", mockJSONResp);
+      console.log("Raw AI Response:", rawResponse);
 
-      if (!mockJSONResp) {
+      if (!rawResponse) {
         throw new Error("Failed to generate course content with AI");
       }
 
-      // Validate JSON
+      // Clean and extract JSON
+      const cleanedResponse = cleanJsonResponse(rawResponse);
+      console.log("Cleaned Response:", cleanedResponse);
+
+      // Parse and validate JSON
+      let parsedData;
       try {
-        JSON.parse(mockJSONResp);
-      } catch {
-        throw new Error("Invalid JSON response from AI");
+        parsedData = JSON.parse(cleanedResponse);
+      } catch (parseError) {
+        console.error("JSON Parse Error:", parseError);
+        console.error("Attempted to parse:", cleanedResponse);
+        throw new Error("Invalid JSON response from AI. Please try again.");
       }
+
+      // Validate the structure
+      if (!validateCourseJson(parsedData)) {
+        console.error("Invalid course structure:", parsedData);
+        throw new Error(
+          "AI generated invalid course structure. Please try again."
+        );
+      }
+
+      console.log("Validated course data:", parsedData);
 
       // Create course using our database API
       console.log("Creating course in database...");
@@ -135,25 +279,32 @@ export function CreateCourseClient({
         title: data.title,
         description: data.description,
         category: data.category,
-        chapters: mockJSONResp,
+        chapters: JSON.stringify(parsedData), // Ensure it's a string
         createdBy: user.emailAddress || "unknown@example.com",
       });
 
       if (courseResponse.status === "Success") {
         console.log("Course created successfully:", courseResponse.data);
-        
+
         // Navigate to the outline page
         const courseData = courseResponse.data as { courseId: string };
         const courseId = courseData.courseId;
-        router.push(`create/${courseId}/Outline`);
+        router.push(`/create/${courseId}/Outline`);
       } else {
         throw new Error(courseResponse.message || "Failed to create course");
       }
-
     } catch (error) {
       console.error("Error creating course:", error);
-      setError(error instanceof Error ? error.message : "Unknown error occurred");
-      
+
+      let errorMessage = "Unknown error occurred";
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      } else if (typeof error === "string") {
+        errorMessage = error;
+      }
+
+      setError(errorMessage);
+
       // Reset form on error
       reset();
     } finally {
@@ -164,7 +315,7 @@ export function CreateCourseClient({
   const handleSuggestionClick = (course: CourseSuggestion) => {
     setValue("title", course.title);
     setValue("description", course.description);
-    setValue("category", course.category.toLowerCase().replace(/\s+/g, '-'));
+    setValue("category", course.category.toLowerCase().replace(/\s+/g, "-"));
   };
 
   const clearError = () => setError(null);
@@ -235,7 +386,7 @@ export function CreateCourseClient({
 
               <div className="space-y-2">
                 <Label>Course Category</Label>
-                <Select 
+                <Select
                   onValueChange={(value) => setValue("category", value)}
                   disabled={isCreating}
                 >
@@ -247,12 +398,20 @@ export function CreateCourseClient({
                     <SelectItem value="data-science">Data Science</SelectItem>
                     <SelectItem value="ai-ml">AI & Machine Learning</SelectItem>
                     <SelectItem value="business">Business</SelectItem>
-                    <SelectItem value="web-development">Web Development</SelectItem>
-                    <SelectItem value="artificial-intelligence">Artificial Intelligence</SelectItem>
+                    <SelectItem value="web-development">
+                      Web Development
+                    </SelectItem>
+                    <SelectItem value="artificial-intelligence">
+                      Artificial Intelligence
+                    </SelectItem>
                     <SelectItem value="cybersecurity">Cybersecurity</SelectItem>
                     <SelectItem value="blockchain">Blockchain</SelectItem>
-                    <SelectItem value="cloud-computing">Cloud Computing</SelectItem>
-                    <SelectItem value="iot-embedded-systems">IoT & Embedded Systems</SelectItem>
+                    <SelectItem value="cloud-computing">
+                      Cloud Computing
+                    </SelectItem>
+                    <SelectItem value="iot-embedded-systems">
+                      IoT & Embedded Systems
+                    </SelectItem>
                   </SelectContent>
                 </Select>
                 {formState.errors.category && (
@@ -269,7 +428,7 @@ export function CreateCourseClient({
                 <Card
                   {...getRootProps()}
                   className={`cursor-pointer hover:border-primary mt-3 ${
-                    isCreating ? 'opacity-50 cursor-not-allowed' : ''
+                    isCreating ? "opacity-50 cursor-not-allowed" : ""
                   }`}
                 >
                   <CardContent className="flex flex-col items-center justify-center p-5">
@@ -291,26 +450,28 @@ export function CreateCourseClient({
                     )}
                   </CardContent>
                 </Card>
-                <input {...getInputProps()} className="hidden" disabled={isCreating} />
+                <input
+                  {...getInputProps()}
+                  className="hidden"
+                  disabled={isCreating}
+                />
               </div>
             </div>
           </div>
 
           <div className="flex justify-end gap-4">
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               onClick={() => reset()}
               disabled={isCreating}
             >
               Cancel
             </Button>
-            <Button 
-              type="submit" 
+            <Button
+              type="submit"
               disabled={isCreating || formState.isSubmitting}
             >
-              {isCreating && (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              )}
+              {isCreating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               {isCreating ? "Creating Course..." : "Create Course with AI"}
             </Button>
           </div>
@@ -326,9 +487,9 @@ export function CreateCourseClient({
                   onClick={() => !isCreating && handleSuggestionClick(course)}
                   key={index}
                   className={`flex flex-col gap-4 w-full h-[300px] justify-around p-5 transition-all ${
-                    isCreating 
-                      ? 'opacity-50 cursor-not-allowed' 
-                      : 'cursor-pointer hover:shadow-lg hover:scale-105'
+                    isCreating
+                      ? "opacity-50 cursor-not-allowed"
+                      : "cursor-pointer hover:shadow-lg hover:scale-105"
                   }`}
                 >
                   <h3 className="text-lg font-semibold line-clamp-2">

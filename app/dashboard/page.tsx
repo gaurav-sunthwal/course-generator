@@ -1,3 +1,5 @@
+
+
 import { Metadata } from "next";
 import { currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
@@ -86,6 +88,11 @@ export default async function DashboardPage() {
     emailAddress: userEmail || null,
     imageUrl: user.imageUrl,
   };
-
-  return <DashboardClient initialCourses={courses} user={userData} />;
+ 
+  return (
+    <>
+      <DashboardClient initialCourses={courses} user={userData} />
+     
+    </>
+  );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Delete, Edit, ExternalLink, Plus } from "lucide-react";
@@ -8,6 +8,7 @@ import Link from "next/link";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useRouter } from "next/navigation";
+import ApiKeyModal from "./API_KeyModal";
 
 interface Course {
   courseId: string;
@@ -34,11 +35,38 @@ export function DashboardClient({
   initialCourses,
   user,
 }: DashboardClientProps) {
-  const [filteredCourses, setFilteredCourses] =
-    useState<Course[]>(initialCourses);
+  const [filteredCourses, setFilteredCourses] = useState<Course[]>(initialCourses);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
+  const [showModal, setShowModal] = useState(false);
+  const [apiKey, setApiKey] = useState<string>("");
   const router = useRouter();
+
+  // Check for existing API key and show modal if needed
+  useEffect(() => {
+    const existingApiKey = localStorage.getItem("apiKey");
+    
+    if (existingApiKey) {
+      setApiKey(existingApiKey);
+      console.log("API key found in localStorage");
+      return;
+    }
+
+    // Check if the modal has already been shown in this session
+    const hasModalBeenShown = sessionStorage.getItem("apiKeyModalShown");
+
+    if (!hasModalBeenShown) {
+      // Set a timer to show the modal after 3 seconds
+      const timer = setTimeout(() => {
+        setShowModal(true);
+        // Mark that the modal has been shown in this session
+        sessionStorage.setItem("apiKeyModalShown", "true");
+      }, 3000);
+
+      // Clean up the timer if the component unmounts
+      return () => clearTimeout(timer);
+    }
+  }, []);
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     const query = e.target.value;
@@ -51,7 +79,11 @@ export function DashboardClient({
   };
 
   const handleDelete = async (courseId: string) => {
-    if (!confirm("Are you sure you want to delete this course? This action cannot be undone.")) {
+    if (
+      !confirm(
+        "Are you sure you want to delete this course? This action cannot be undone."
+      )
+    ) {
       return;
     }
 
@@ -63,6 +95,8 @@ export function DashboardClient({
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
+          // Add API key to headers if available
+          ...(apiKey && { "Authorization": `Bearer ${apiKey}` }),
         },
       });
 
@@ -70,24 +104,68 @@ export function DashboardClient({
 
       if (response.ok) {
         // Update the local state immediately for better UX
-        const updatedCourses = initialCourses.filter(course => course.courseId !== courseId);
-        setFilteredCourses(updatedCourses.filter((course) =>
-          course.title.toLowerCase().includes(searchQuery.toLowerCase())
-        ));
-        
+        const updatedCourses = initialCourses.filter(
+          (course) => course.courseId !== courseId
+        );
+        setFilteredCourses(
+          updatedCourses.filter((course) =>
+            course.title.toLowerCase().includes(searchQuery.toLowerCase())
+          )
+        );
+
         alert("Course deleted successfully!");
-        
+
         // Also refresh the page to ensure data consistency
         router.refresh();
       } else {
-        alert(`Error deleting course: ${data.message || data.error || 'Unknown error'}`);
+        alert(
+          `Error deleting course: ${
+            data.message || data.error || "Unknown error"
+          }`
+        );
       }
     } catch (error) {
       console.error("Error deleting course:", error);
-      alert("Error deleting course. Please check your connection and try again.");
+      alert(
+        "Error deleting course. Please check your connection and try again."
+      );
     } finally {
       setIsDeleting(null);
     }
+  };
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+  };
+
+  const handleSubmitApiKey = (submittedApiKey: string) => {
+    try {
+      // Store API key in localStorage
+      localStorage.setItem("apiKey", submittedApiKey);
+      setApiKey(submittedApiKey);
+      
+      console.log("API key saved successfully");
+      
+      // Optional: You can also send to your backend
+      // fetch('/api/save-api-key', {
+      //   method: 'POST',
+      //   headers: { 'Content-Type': 'application/json' },
+      //   body: JSON.stringify({ apiKey: submittedApiKey })
+      // });
+      
+      setShowModal(false);
+    } catch (error) {
+      console.error("Error saving API key:", error);
+      alert("Failed to save API key. Please try again.");
+    }
+  };
+
+  // Function to clear API key (for testing/logout)
+  const clearApiKey = () => {
+    localStorage.removeItem("apiKey");
+    sessionStorage.removeItem("apiKeyModalShown");
+    setApiKey("");
+    setShowModal(true);
   };
 
   return (
@@ -108,8 +186,23 @@ export function DashboardClient({
               <Plus className="mr-2 h-4 w-4" /> Add Course
             </Button>
           </Link>
+          {/* Debug button to clear API key - remove in production */}
+          {apiKey && (
+            <Button variant="outline" onClick={clearApiKey} size="sm">
+              Clear API Key
+            </Button>
+          )}
         </div>
       </div>
+
+      {/* API Key Status Indicator */}
+      {apiKey && (
+        <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+          <p className="text-sm text-green-700">
+            ✅ API Key configured (ends with: ***{apiKey.slice(-4)})
+          </p>
+        </div>
+      )}
 
       {filteredCourses.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -182,6 +275,13 @@ export function DashboardClient({
           </div>
         </div>
       )}
+
+      {/* API Key Modal - moved outside conditional render */}
+      <ApiKeyModal
+        isOpen={showModal}
+        onClose={handleCloseModal}
+        onSubmit={handleSubmitApiKey}
+      />
     </div>
   );
 }

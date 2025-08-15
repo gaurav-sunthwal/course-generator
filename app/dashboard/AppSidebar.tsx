@@ -1,4 +1,4 @@
-import { Compass, Home, LogOut, Users } from "lucide-react";
+import { Compass, Home, LogOut, Settings, Users ,  } from "lucide-react";
 import Link from "next/link";
 
 import {
@@ -31,6 +31,11 @@ const items = [
     title: "Upgrade",
     url: "/dashboard/upgrade",
     icon: Users,
+  },
+  {
+    title: "Settings",
+    url: "/dashboard/setting",
+    icon: Settings,
   },
 ];
 
