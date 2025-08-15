@@ -60,8 +60,8 @@ export function DashboardClient({
       const timer = setTimeout(() => {
         setShowModal(true);
         // Mark that the modal has been shown in this session
-        sessionStorage.setItem("apiKeyModalShown", "true");
-      }, 3000);
+        localStorage.setItem("apiKeyModalShown", "true");
+      }, 1000);
 
       // Clean up the timer if the component unmounts
       return () => clearTimeout(timer);
